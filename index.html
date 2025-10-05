@@ -25,6 +25,12 @@
         input:disabled, input[type="checkbox"]:disabled + label {
             @apply bg-gray-200 cursor-not-allowed text-gray-400;
         }
+        .correct-answer {
+            transition: all 0.2s ease-in-out;
+        }
+        .incorrect-answer {
+             transition: all 0.2s ease-in-out;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
@@ -148,12 +154,13 @@
             <div class="flex justify-between items-center mb-6 w-full"><button id="return-button" class="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-full shadow-sm hover:bg-red-600 transition duration-300">Retour au menu</button><div class="text-sm font-medium text-gray-500" id="progress-display"></div><div class="flex items-baseline gap-2"><h2 id="chronometer-label" class="text-sm font-medium text-gray-500">Chronomètre</h2><div id="timer-display" class="text-sm font-bold text-gray-900 tabular-nums">0.000s</div></div></div>
             <div id="word-display" class="min-h-[250px] flex flex-col items-center justify-center"><p class="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-800 break-words max-w-full leading-tight">Mot</p></div>
             <div id="flashcard-reveal" class="invisible text-xl my-4 text-gray-600 italic min-h-[56px]"><span id="target-word-display" class="font-bold"></span><div id="other-cols-display" class="hidden text-sm mt-2 text-gray-500"></div></div>
-            <div class="mt-2 w-full flex flex-col items-center"><div class="flex justify-center items-center gap-4"><button id="show-word-button" class="hidden mb-4 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-green-700 transition duration-300 transform hover:scale-105">Voir le mot</button><button id="next-word-button" class="mb-4 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105">Mot suivant →</button></div><input type="text" id="typing-input" class="hidden w-full max-w-md p-3 text-center border-2 border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tapez la réponse ici"><div id="multiple-choice-container" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg mt-4"></div><div id="game-instruction" class="text-gray-500 text-sm mt-4">Utilisez la flèche droite (→) pour passer au mot suivant.</div></div>
+            <div class="mt-2 w-full flex flex-col items-center"><div class="flex justify-center items-center gap-4"><button id="show-word-button" class="hidden mb-4 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-green-700 transition duration-300 transform hover:scale-105">Voir le mot</button><button id="next-word-button" class="mb-4 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105">Mot suivant →</button></div><input type="text" id="typing-input" class="hidden w-full max-w-md p-3 text-center border-2 border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200" placeholder="Tapez la réponse ici"><div id="multiple-choice-container" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg mt-4"></div><div id="game-instruction" class="text-gray-500 text-sm mt-4">Utilisez la flèche droite (→) pour passer au mot suivant.</div></div>
         </div>
         
         <!-- Écran de fin -->
         <div id="end-screen" class="hidden w-full">
             <h2 class="text-3xl font-bold mb-4 text-gray-800">Jeu terminé !</h2>
+            <div id="review-all-summary" class="hidden text-lg mb-4"></div>
             <div class="mb-6"><span class="text-gray-600 text-lg">Votre temps total : </span><span id="final-time-display" class="text-4xl font-extrabold text-blue-600 tabular-nums">0.000s</span></div>
             <div id="history-container" class="mt-8 overflow-x-auto w-full"><h3 id="history-title" class="text-xl font-semibold mb-4 text-gray-800">Historique des mots et temps</h3><table class="min-w-full bg-white rounded-lg shadow"><thead class="bg-gray-200"><tr><th id="history-col-source" class="py-2 px-4 text-center font-medium text-gray-600">Source</th><th id="history-col-target" class="py-2 px-4 text-center font-medium text-gray-600">Cible</th><th class="py-2 px-4 text-center font-medium text-gray-600">Autres</th><th class="py-2 px-4 text-center font-medium text-gray-600">Temps</th></tr></thead><tbody id="history-table-body" class="divide-y divide-gray-200"></tbody></table></div>
             <div id="replay-options" class="flex items-center justify-center gap-2 mt-4"><label for="replay-longest-count">Revoir les</label><input type="number" id="replay-longest-count" min="1" class="w-20 p-1 border border-gray-300 rounded-md text-center" placeholder="10"><label for="replay-longest-count">mots les plus longs.</label></div>
@@ -215,6 +222,7 @@
         const helpLink = document.getElementById('help-link');
         const helpModal = document.getElementById('help-modal');
         const closeHelpButton = document.getElementById('close-help-button');
+        const reviewAllSummary = document.getElementById('review-all-summary');
         
         // Game state variables
         let wordData = [];
@@ -462,7 +470,7 @@
 
             isWordRevealed = false;
             isError = false;
-            typingInput.classList.remove('border-red-500');
+            typingInput.classList.remove('border-red-500', 'bg-red-100', 'border-green-500', 'bg-green-100');
             typingInput.value = '';
             
             const currentIndex = shuffledIndices[currentWordIndex];
@@ -481,12 +489,13 @@
             flashcardReveal.classList.add('invisible');
             otherColsDisplay.classList.add('hidden');
             multipleChoiceContainer.innerHTML = '';
-
+             
             if (isTypingMode) {
                 nextWordButton.innerHTML = 'Valider';
                 typingInput.focus();
             } else if (isMultipleChoiceMode) {
-                 displayMultipleChoice();
+                nextWordButton.classList.add('hidden');
+                displayMultipleChoice();
             } else {
                 nextWordButton.innerHTML = 'Mot suivant →';
             }
@@ -509,9 +518,67 @@
                     button.textContent = answer;
                     button.className = 'bg-gray-200 text-gray-800 p-3 rounded-full font-semibold shadow-md hover:bg-gray-300 transition';
                 }
-                button.addEventListener('click', () => handleMultipleChoiceClick(answer === correctWord, correctWord));
+                button.dataset.answer = answer;
+                button.addEventListener('click', (e) => handleMultipleChoiceClick(e.currentTarget, answer === correctWord, correctWord));
                 multipleChoiceContainer.appendChild(button);
             });
+        }
+        
+        function handleMultipleChoiceClick(clickedButton, isCorrect, correctAnswer) {
+            const timeForWord = performance.now() - wordStartTime;
+            const currentIndex = shuffledIndices[currentWordIndex];
+            
+            // Disable all buttons
+            const allButtons = multipleChoiceContainer.querySelectorAll('button');
+            allButtons.forEach(btn => btn.disabled = true);
+
+            if (isCorrect) {
+                clickedButton.classList.remove('bg-gray-200', 'hover:bg-gray-300');
+                clickedButton.classList.add('bg-green-500', 'text-white', 'correct-answer');
+                wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: false });
+                setTimeout(nextWord, 800);
+            } else {
+                isError = true;
+                clickedButton.classList.remove('bg-gray-200', 'hover:bg-gray-300');
+                clickedButton.classList.add('bg-red-500', 'text-white', 'incorrect-answer');
+                
+                // Highlight the correct answer
+                const correctButton = Array.from(allButtons).find(btn => btn.dataset.answer === correctAnswer);
+                if(correctButton) {
+                    correctButton.classList.remove('bg-gray-200', 'hover:bg-gray-300');
+                    correctButton.classList.add('bg-green-500', 'text-white');
+                } else { // Fallback if correct answer not on screen for some reason
+                    revealWord();
+                }
+
+                wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: true });
+                nextWordButton.innerHTML = 'Mot suivant →';
+                nextWordButton.classList.remove('hidden');
+                document.removeEventListener('keydown', handleKeydown);
+                document.addEventListener('keydown', handleKeydown);
+            }
+        }
+
+        function checkTypedAnswer() {
+            if (!isTypingMode || isError) return;
+            const typedWord = typingInput.value.trim().toLowerCase();
+            const currentIndex = shuffledIndices[currentWordIndex];
+            const correctWord = wordData[currentIndex][targetColumn].trim().toLowerCase();
+            if (typedWord === correctWord) {
+                isError = false;
+                typingInput.classList.add('border-green-500', 'bg-green-100', 'correct-answer');
+                setTimeout(() => {
+                     typingInput.classList.remove('border-green-500', 'bg-green-100');
+                     nextWord();
+                }, 800);
+            } else {
+                typingInput.classList.add('border-red-500', 'bg-red-100', 'incorrect-answer');
+                revealWord();
+                nextWordButton.innerHTML = 'Mot suivant →';
+                isError = true;
+                document.removeEventListener('keydown', handleTyping);
+                document.addEventListener('keydown', handleKeydown);
+            }
         }
 
         function revealWord() {
@@ -537,9 +604,17 @@
         }
 
         function nextWord() {
-            const timeForWord = performance.now() - wordStartTime;
-            const currentIndex = shuffledIndices[currentWordIndex];
-            wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: isError });
+            if (!isTypingMode && !isMultipleChoiceMode) { // Only record time here for non-interactive modes
+                 const timeForWord = performance.now() - wordStartTime;
+                 const currentIndex = shuffledIndices[currentWordIndex];
+                 wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: isError });
+            } else if (isTypingMode && !isError) { // For typing mode, time is recorded on success
+                const timeForWord = performance.now() - wordStartTime;
+                const currentIndex = shuffledIndices[currentWordIndex];
+                wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: false });
+            } else if ((isTypingMode || isMultipleChoiceMode) && isError) { // For errors, time is already recorded, just push index
+                // Time already recorded in checkTypedAnswer/handleMultipleChoiceClick on error
+            }
             currentWordIndex++;
 
             if (isReviewAllMode) {
@@ -564,22 +639,31 @@
             
             replayButton.classList.add('hidden');
             replayOptionsDiv.classList.add('hidden');
-
+            reviewAllSummary.classList.add('hidden');
+            
             if (isMultipleChoiceMode) {
                 const errorWords = wordTimings.filter(item => item.isError);
                 historyTitle.textContent = "Mots avec erreur";
                 populateHistoryTable(errorWords);
+                if (errorWords.length > 0) {
+                    replayButton.textContent = 'Rejouer les mots incorrects';
+                    replayButton.classList.remove('hidden');
+                }
             } else {
                  if (isReviewAllMode && wordTimings.length > 0) {
                     const aggregatedTimes = new Map();
                     wordTimings.forEach(item => {
                         const key = item['1'] + '||' + item['2'];
                         if (!aggregatedTimes.has(key)) {
-                            aggregatedTimes.set(key, { ...item, time: 0 });
+                            aggregatedTimes.set(key, { ...item, time: 0, count: 0 });
                         }
-                        aggregatedTimes.get(key).time += item.time;
+                        const entry = aggregatedTimes.get(key);
+                        entry.time += item.time;
+                        entry.count += 1;
                     });
                     wordTimings = Array.from(aggregatedTimes.values());
+                    reviewAllSummary.textContent = `Nombre de mots vus : ${wordTimings.reduce((acc, item) => acc + item.count, 0)}`;
+                    reviewAllSummary.classList.remove('hidden');
                 }
 
                 wordTimings.sort((a, b) => b.isError - a.isError || b.time - a.time);
@@ -592,7 +676,7 @@
                 if (hasErrors) {
                     replayButton.textContent = 'Rejouer les mots incorrects';
                     replayButton.classList.remove('hidden');
-                } else if (!isTypingMode && !isReviewAllMode && hasWords) {
+                } else if (hasWords) {
                     replayButton.textContent = 'Rejouer les mots les plus longs';
                     replayButton.classList.remove('hidden');
                     replayOptionsDiv.classList.remove('hidden');
@@ -635,54 +719,18 @@
             timerDisplay.textContent = '0.000s';
             checkMultipleChoiceAvailability();
         }
-        
-        function handleMultipleChoiceClick(isCorrect, correctAnswer) {
-            const timeForWord = performance.now() - wordStartTime;
-            const currentIndex = shuffledIndices[currentWordIndex];
-            wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: !isCorrect });
-            
-            if (!isCorrect && !isReviewAllMode) {
-                 showCustomAlert('Incorrect', `La bonne réponse était : "${correctAnswer}"`);
-            }
-            
-            currentWordIndex++;
-            if (isReviewAllMode) {
-                 displayWord();
-            } else if (currentWordIndex < shuffledIndices.length) {
-                displayWord();
-            } else {
-                endGame();
-            }
-        }
 
-        function checkTypedAnswer() {
-            if (!isTypingMode || isError) return;
-            const typedWord = typingInput.value.trim().toLowerCase();
-            const currentIndex = shuffledIndices[currentWordIndex];
-            const correctWord = wordData[currentIndex][targetColumn].trim().toLowerCase();
-            if (typedWord === correctWord) {
-                isError = false;
-                nextWord();
-            } else {
-                typingInput.classList.add('border-red-500');
-                revealWord();
-                nextWordButton.innerHTML = 'Mot suivant →';
-                isError = true;
-                document.removeEventListener('keydown', handleTyping);
-                document.addEventListener('keydown', handleKeydown);
-            }
-        }
-        
         function triggerNextAction() {
-            if (!gameStarted || (isMultipleChoiceMode && !isReviewAllMode)) return;
-            if (isTypingMode) {
-                 if (isError) nextWord();
-                 else checkTypedAnswer();
+            if (!gameStarted) return;
+            // For MC mode, this is only called after a wrong answer via the button's click
+            if ((isMultipleChoiceMode || isTypingMode) && isError) {
+                 nextWord();
+            } else if (isTypingMode) {
+                checkTypedAnswer();
             } else if (isFlashcardMode) {
                  if(isWordRevealed) nextWord();
                  else revealWord();
-            }
-            else {
+            } else {
                 nextWord();
             }
         }
@@ -696,7 +744,8 @@
         
         function handleReplay() {
             let wordsToReplay = [];
-            if (wordTimings.some(word => word.isError)) {
+            const hasErrors = wordTimings.some(word => word.isError);
+            if (hasErrors) {
                 wordsToReplay = wordTimings.filter(word => word.isError);
             } else {
                 const count = parseInt(replayLongestCountInput.value) || 10;
@@ -707,7 +756,7 @@
                 showCustomAlert('Information', 'Aucun mot à rejouer.');
                 return;
             }
-            const cleanWords = wordsToReplay.map(item => { const { time, isError, ...word } = item; return word; });
+            const cleanWords = wordsToReplay.map(item => { const { time, isError, count, ...word } = item; return word; });
             startGame(cleanWords);
         }
 
@@ -754,5 +803,3 @@
     </script>
 </body>
 </html>
-
-
