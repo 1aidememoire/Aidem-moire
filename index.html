@@ -37,7 +37,6 @@
 
     <div id="game-container" class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-4xl text-center flex flex-col items-center">
 
-        <!-- Alerte personnalisée -->
         <div id="custom-alert" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
             <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
                 <div class="mt-3 text-center">
@@ -54,7 +53,6 @@
             </div>
         </div>
         
-        <!-- Aide modale -->
         <div id="help-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
             <div class="relative mx-auto p-6 border w-full max-w-lg shadow-lg rounded-md bg-white">
                 <div class="mt-3">
@@ -83,20 +81,40 @@
                                 </tbody>
                             </table>
                         </div>
-                         <p class="text-sm text-gray-700 mt-2">
+                        <p class="text-sm text-gray-700 mt-2">
                             Copiez ces informations et collez-les dans la case centrale. Ensuite, activez une des options et lancez le jeu.
                         </p>
+                        
                         <ul class="list-disc list-inside text-sm text-gray-700 mt-2">
-                            <li>Le <b>mode par défaut</b> vous montre un mot et vous passez au suivant.</li>
                             <li>Le <b>mode Saisie</b> vous demande de taper l'information recherchée.</li>
-                            <li>Le <b>mode Choix multiples</b> vous présente 4 options et vous demande de cliquer sur la bonne réponse.</li>
+                            <li>Le <b>mode Choix multiples</b> vous présente 4 options et vous demande de cliquer sur la bonne réponse. Pour l'activer, il est nécessaire d'avoir collé au moins 8 cases d'un tableau.</li>
+                            <li>Le <b>mode Flashcards</b> vous présente un mot avant de montrer l'information associée.</li>
+                            <li>Le <b>mode Mixte</b>, qui nécessite au moins 20 cases d'un tableau, présente les mots selon les 3 modes ci-dessus, de façon aléatoire.</li>
                         </ul>
-                        <p class="text-sm text-gray-700 mt-2">
-                            Vous pouvez copier jusqu'à 5 colonnes. Le jeu vous permet de déterminer avec lesquelles vous souhaitez travailler.
+
+                        <p class="text-sm text-gray-700 mt-4">
+                            Vous pouvez également utiliser le mode par défaut en ne cliquant sur aucune des options ci-dessus. Ce mode vous montre un mot et vous pouvez ensuite passer au suivant.
                         </p>
-                         <p class="text-sm text-gray-700 mt-4">
+
+                        <p class="text-sm text-gray-700 mt-4">
+                            Plusieurs options complémentaires sont également disponibles : 
+                        </p>
+                        <ul class="list-disc list-inside text-sm text-gray-700 mt-2">
+                            <li><b>Tout revoir en aléatoire pendant X secondes</b> vous permet de fixer une durée de fin plutôt qu'un nombre de mots.</li>
+                            <li><b>Lire dans l'ordre</b> vous permet de revoir les informations renseignées dans l'ordre dans lequel ils ont été renseignés.</li>
+                            <li>Avec l'option <b>Timer</b>, les mots changent automatiquement et aléatoirement, sans intervention de l'utilisateur.</li>
+                            <li><b>Afficher les autres données</b> permet d'afficher les informations renseignées dans les colonnes autres que Source et Cible.</li>
+                            <li><b>Limiter le nombre de mots</b> permet, par exemple, de ne revoir que 10 mots sur les 1000 renseignés par exemple. Les 10 mots seront choisis aléatoirement.</li>
+                        </ul>
+
+                        <p class="text-sm text-gray-700 mt-4">
+                            Vous pouvez copier jusqu'à 5 colonnes. Le jeu vous permet de déterminer avec lesquelles vous souhaitez travailler (colonne source = mot présenté ; colonne cible = mot recherché).
+                        </p>
+
+                        <p class="text-sm text-gray-700 mt-4">
                             Vous pouvez également importer des images. Le format JPEG est fortement recommandé. Le nom des images correspond aux informations de la 2e colonne. Par exemple, si vous ajoutez une photo de serpent intitulée "Reptile", en mode saisie, c'est le mot "Reptile" que vous devrez renseigner.
                         </p>
+
                     </div>
                     <div class="items-center px-4 py-3">
                         <button id="close-help-button" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -107,7 +125,6 @@
             </div>
         </div>
 
-        <!-- Écran de configuration -->
         <div id="setup-screen" class="w-full">
             <h1 class="text-3xl font-bold mb-4 text-gray-800">Préparez le jeu</h1>
             <p id="help-link" class="text-blue-600 cursor-pointer hover:underline mb-6">Aide sur le fonctionnement du jeu</p>
@@ -118,7 +135,7 @@
                     <button id="image-tab-btn" class="tab-button inactive">Importer des images</button>
                 </div>
                 <div id="text-tab-content" class="pt-4">
-                     <textarea id="word-input-all" class="w-full h-64 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-gray-700 resize-none" placeholder="Collez ici vos mots (colonnes séparées par des tabulations, lignes par des sauts de ligne)."></textarea>
+                    <textarea id="word-input-all" class="w-full h-64 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-gray-700 resize-none" placeholder="Collez ici vos mots (colonnes séparées par des tabulations, lignes par des sauts de ligne)."></textarea>
                 </div>
                 <div id="image-tab-content" class="hidden pt-4">
                     <input type="file" id="image-input" multiple accept="image/jpeg, image/png" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
@@ -130,12 +147,14 @@
                  <div class="flex items-center space-x-2"><input type="checkbox" id="typing-mode-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="typing-mode-checkbox" class="text-gray-700">Mode Saisie</label></div>
                  <div class="flex items-center space-x-2"><input type="checkbox" id="multiple-choice-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="multiple-choice-checkbox" class="text-gray-700" id="multiple-choice-label">Mode Choix multiples</label></div>
                  <div class="flex items-center space-x-2"><input type="checkbox" id="flashcard-mode-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="flashcard-mode-checkbox" class="text-gray-700">Mode Flashcards</label></div>
+                 <div class="flex items-center space-x-2"><input type="checkbox" id="mixed-mode-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="mixed-mode-checkbox" class="text-gray-700" id="mixed-mode-label">Mode Mixte</label></div>
                  <div class="flex items-center space-x-2 col-span-1 md:col-span-2"><input type="checkbox" id="review-all-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="review-all-checkbox" class="text-gray-700">Tout revoir en aléatoire pendant</label><input type="number" id="review-all-seconds" min="1" class="w-20 p-1 border border-gray-300 rounded-md" placeholder="ex: 60"><label for="review-all-seconds" class="text-gray-700">secondes</label></div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-4">
                  <div class="flex items-center space-x-2"><input type="checkbox" id="in-order-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="in-order-checkbox" class="text-gray-700">Lire dans l'ordre</label></div>
                  <div class="flex items-center space-x-2"><input type="checkbox" id="show-other-cols-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="show-other-cols-checkbox" class="text-gray-700">Afficher les autres données</label></div>
+                 <div class="flex items-center space-x-2 col-span-1 md:col-span-2"><input type="checkbox" id="timer-mode-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="timer-mode-checkbox" class="text-gray-700">Timer</label><input type="number" id="timer-seconds" min="0.1" max="99" step="0.1" class="w-20 p-1 border border-gray-300 rounded-md" placeholder="ex: 5"><label for="timer-seconds" class="text-gray-700">secondes</label></div>
             </div>
 
 
@@ -149,7 +168,6 @@
             <button id="start-button" class="mt-6 px-8 py-3 bg-blue-600 text-white font-semibold rounded-full shadow-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Lancer le jeu</button>
         </div>
 
-        <!-- Écran de jeu -->
         <div id="game-screen" class="hidden w-full">
             <div class="flex justify-between items-center mb-6 w-full"><button id="return-button" class="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-full shadow-sm hover:bg-red-600 transition duration-300">Retour au menu</button><div class="text-sm font-medium text-gray-500" id="progress-display"></div><div class="flex items-baseline gap-2"><h2 id="chronometer-label" class="text-sm font-medium text-gray-500">Chronomètre</h2><div id="timer-display" class="text-sm font-bold text-gray-900 tabular-nums">0.000s</div></div></div>
             <div id="word-display" class="min-h-[250px] flex flex-col items-center justify-center"><p class="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-800 break-words max-w-full leading-tight">Mot</p></div>
@@ -157,7 +175,6 @@
             <div class="mt-2 w-full flex flex-col items-center"><div class="flex justify-center items-center gap-4"><button id="show-word-button" class="hidden mb-4 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-green-700 transition duration-300 transform hover:scale-105">Voir le mot</button><button id="next-word-button" class="mb-4 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105">Mot suivant →</button></div><input type="text" id="typing-input" class="hidden w-full max-w-md p-3 text-center border-2 border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200" placeholder="Tapez la réponse ici"><div id="multiple-choice-container" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg mt-4"></div><div id="game-instruction" class="text-gray-500 text-sm mt-4">Utilisez la flèche droite (→) pour passer au mot suivant.</div></div>
         </div>
         
-        <!-- Écran de fin -->
         <div id="end-screen" class="hidden w-full">
             <h2 class="text-3xl font-bold mb-4 text-gray-800">Jeu terminé !</h2>
             <div id="review-all-summary" class="hidden text-lg mb-4"></div>
@@ -197,7 +214,9 @@
         const typingModeCheckbox = document.getElementById('typing-mode-checkbox');
         const multipleChoiceCheckbox = document.getElementById('multiple-choice-checkbox');
         const flashcardModeCheckbox = document.getElementById('flashcard-mode-checkbox');
+        const mixedModeCheckbox = document.getElementById('mixed-mode-checkbox');
         const multipleChoiceLabel = document.getElementById('multiple-choice-label');
+        const mixedModeLabel = document.getElementById('mixed-mode-label');
         const sourceColumnSelect = document.getElementById('source-column-select');
         const targetColumnSelect = document.getElementById('target-column-select');
         const progressDisplay = document.getElementById('progress-display');
@@ -223,6 +242,8 @@
         const helpModal = document.getElementById('help-modal');
         const closeHelpButton = document.getElementById('close-help-button');
         const reviewAllSummary = document.getElementById('review-all-summary');
+        const timerModeCheckbox = document.getElementById('timer-mode-checkbox');
+        const timerSecondsInput = document.getElementById('timer-seconds');
         
         // Game state variables
         let wordData = [];
@@ -237,14 +258,17 @@
         let isTypingMode = false;
         let isMultipleChoiceMode = false;
         let isFlashcardMode = false;
+        let isMixedMode = false;
         let isReviewAllMode = false;
+        let isTimerMode = false;
+        let wordTimerInterval = null;
+        let audioCtx; // Pour le son
         let isWordRevealed = false;
         let isError = false;
         let sourceColumn;
         let targetColumn;
-
         const columnMap = { '1': 'Colonne 1', '2': 'Colonne 2', '3': 'Colonne 3', '4': 'Colonne 4', '5': 'Colonne 5' };
-        
+
         // --- MODAL & ALERT FUNCTIONS ---
         function showCustomAlert(title, message) {
             alertTitle.textContent = title;
@@ -302,29 +326,61 @@
 
         function checkMultipleChoiceAvailability() {
             let uniqueWords;
+            let totalCount = 0;
             const isImageMode = !imageTabContent.classList.contains('hidden');
 
             if (isImageMode) {
                 const imageFiles = imageInput.files;
+                totalCount = imageFiles.length;
                 uniqueWords = new Set(Array.from(imageFiles).map(file => file.name.split('.').slice(0, -1).join('.')));
             } else {
                 const rawInput = wordInputAll.value.trim();
-                const rows = rawInput.split('\n');
+                const rows = rawInput.split('\n').filter(r => r.trim() !== '');
+                totalCount = rows.length;
                 const currentWordData = rows.map(row => row.split('\t')[targetColumnSelect.value - 1] || '').filter(Boolean);
                 uniqueWords = new Set(currentWordData);
             }
             
-            const isAvailable = uniqueWords.size >= 4;
-            multipleChoiceCheckbox.disabled = !isAvailable;
-            multipleChoiceLabel.classList.toggle('text-gray-400', !isAvailable);
-            if (!isAvailable && multipleChoiceCheckbox.checked) {
+            const isMCAvailable = uniqueWords.size >= 4;
+            multipleChoiceCheckbox.disabled = !isMCAvailable;
+            multipleChoiceLabel.classList.toggle('text-gray-400', !isMCAvailable);
+            if (!isMCAvailable && multipleChoiceCheckbox.checked) {
                 multipleChoiceCheckbox.checked = false;
+            }
+
+            const isMixedAvailable = totalCount >= 10;
+            mixedModeCheckbox.disabled = !isMixedAvailable || !isMCAvailable; // MC must also be possible for the MC part of mixed mode
+            mixedModeLabel.classList.toggle('text-gray-400', !isMixedAvailable || !isMCAvailable);
+            if ((!isMixedAvailable || !isMCAvailable) && mixedModeCheckbox.checked) {
+                mixedModeCheckbox.checked = false;
             }
         }
         wordInputAll.addEventListener('input', checkMultipleChoiceAvailability);
         targetColumnSelect.addEventListener('change', checkMultipleChoiceAvailability);
-        
+
         // --- UTILITY FUNCTIONS ---
+        function playBeep() {
+            if (!audioCtx) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.warn('Web Audio API is not supported in this browser.');
+                    return;
+                }
+            }
+            if (!audioCtx) return;
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.1);
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + 0.1);
+        }
+
         function shuffle(array) {
             let currentIndex = array.length, randomIndex;
             while (currentIndex !== 0) {
@@ -386,7 +442,7 @@
 
                 const limit = parseInt(wordLimitInput.value);
                 if (!isNaN(limit) && limit > 0 && limit < wordData.length) {
-                    wordData = wordData.slice(0, limit);
+                    wordData = shuffle(wordData).slice(0, limit);
                 }
                 if (wordData.length === 0) {
                     showCustomAlert('Erreur', 'Aucun mot valide trouvé.');
@@ -406,10 +462,28 @@
             isTypingMode = typingModeCheckbox.checked;
             isMultipleChoiceMode = multipleChoiceCheckbox.checked;
             isFlashcardMode = flashcardModeCheckbox.checked;
+            isMixedMode = mixedModeCheckbox.checked;
             isReviewAllMode = reviewAllCheckbox.checked;
+            isTimerMode = timerModeCheckbox.checked;
 
-            const indices = Array.from({ length: wordData.length }, (_, i) => i);
-            shuffledIndices = inOrderCheckbox.checked && !isReviewAllMode ? indices : shuffle(indices);
+            if (isMixedMode) {
+                const indices = Array.from({ length: wordData.length }, (_, i) => i);
+                const shuffledAllIndices = shuffle(indices);
+                
+                const mcCount = Math.floor(wordData.length * 0.4);
+                const flashcardCount = Math.floor(wordData.length * 0.3);
+                const typingCount = wordData.length - mcCount - flashcardCount;
+
+                const mcIndices = shuffledAllIndices.slice(0, mcCount).map(index => ({ index, mode: 'mc' }));
+                const flashcardIndices = shuffledAllIndices.slice(mcCount, mcCount + flashcardCount).map(index => ({ index, mode: 'flashcard' }));
+                const typingIndices = shuffledAllIndices.slice(mcCount + flashcardCount).map(index => ({ index, mode: 'typing' }));
+                
+                shuffledIndices = shuffle([...mcIndices, ...flashcardIndices, ...typingIndices]);
+
+            } else {
+                const indices = Array.from({ length: wordData.length }, (_, i) => i);
+                shuffledIndices = inOrderCheckbox.checked && !isReviewAllMode && !isTimerMode ? indices : shuffle(indices);
+            }
             
             setupScreen.classList.add('hidden');
             gameScreen.classList.remove('hidden');
@@ -421,18 +495,8 @@
             flashcardReveal.classList.add('invisible');
             showWordButton.classList.add('hidden');
             nextWordButton.classList.remove('hidden');
-            gameInstruction.classList.toggle('hidden', isMultipleChoiceMode);
-
-            if (isTypingMode) {
-                typingInput.classList.remove('hidden');
-                nextWordButton.innerHTML = 'Valider';
-            } else if (isMultipleChoiceMode) {
-                nextWordButton.classList.add('hidden');
-                multipleChoiceContainer.classList.remove('hidden');
-            } else if (!isReviewAllMode) {
-                showWordButton.classList.remove('hidden');
-            }
-
+            gameInstruction.classList.toggle('hidden', isMultipleChoiceMode || isMixedMode || isTimerMode);
+            
             currentWordIndex = 0;
             wordTimings = [];
             gameStarted = true;
@@ -449,11 +513,20 @@
                 masterTimer = setTimeout(endGame, duration * 1000);
             }
 
+            if (isTimerMode) {
+                const duration = parseFloat(timerSecondsInput.value);
+                if (isNaN(duration) || duration <= 0) {
+                    showCustomAlert('Erreur', 'Veuillez entrer une durée valide pour le timer.');
+                    returnToSetup();
+                    return;
+                }
+                wordTimerInterval = setInterval(() => {
+                    playBeep();
+                    nextWord();
+                }, duration * 1000);
+            }
+
             displayWord();
-            document.removeEventListener('keydown', handleKeydown);
-            document.removeEventListener('keydown', handleTyping);
-            if (isTypingMode) document.addEventListener('keydown', handleTyping);
-            else document.addEventListener('keydown', handleKeydown);
         }
 
         function updateTimer() {
@@ -462,18 +535,21 @@
         }
 
         function displayWord() {
-            if (gameStarted && isReviewAllMode && currentWordIndex >= shuffledIndices.length) {
+            if (gameStarted && (isReviewAllMode || isTimerMode) && currentWordIndex >= shuffledIndices.length) {
                 shuffledIndices = shuffle(shuffledIndices);
                 currentWordIndex = 0;
             }
-            if (!gameStarted || currentWordIndex >= shuffledIndices.length) return;
-
+            if (!gameStarted || currentWordIndex >= shuffledIndices.length) {
+                if(gameStarted && (isReviewAllMode || isTimerMode)) { /* loop */ } else { return; }
+            }
+            
             isWordRevealed = false;
             isError = false;
             typingInput.classList.remove('border-red-500', 'bg-red-100', 'border-green-500', 'bg-green-100');
             typingInput.value = '';
             
-            const currentIndex = shuffledIndices[currentWordIndex];
+            const currentMode = isMixedMode ? shuffledIndices[currentWordIndex].mode : null;
+            const currentIndex = isMixedMode ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
             const sourceContent = wordData[currentIndex][sourceColumn];
             
             const displayElement = document.getElementById('word-display');
@@ -485,29 +561,67 @@
 
             wordStartTime = performance.now();
             progressDisplay.textContent = `(${currentWordIndex + 1}/${wordData.length})`;
-            
             flashcardReveal.classList.add('invisible');
             otherColsDisplay.classList.add('hidden');
             multipleChoiceContainer.innerHTML = '';
-             
-            if (isTypingMode) {
-                nextWordButton.innerHTML = 'Valider';
-                typingInput.focus();
+            
+            typingInput.classList.add('hidden');
+            multipleChoiceContainer.classList.add('hidden');
+            showWordButton.classList.add('hidden');
+            nextWordButton.classList.remove('hidden');
+
+            document.removeEventListener('keydown', handleKeydown);
+            document.removeEventListener('keydown', handleTyping);
+            
+            let activeMode;
+            if (isMixedMode) {
+                activeMode = currentMode;
+            } else if (isTypingMode) {
+                activeMode = 'typing';
             } else if (isMultipleChoiceMode) {
+                activeMode = 'mc';
+            } else if (isFlashcardMode || isReviewAllMode) {
+                activeMode = 'flashcard';
+            } else { // Covers Default and Timer mode
+                activeMode = 'default';
+            }
+
+            switch (activeMode) {
+                case 'typing':
+                    typingInput.classList.remove('hidden');
+                    nextWordButton.innerHTML = 'Valider';
+                    typingInput.focus();
+                    document.addEventListener('keydown', handleTyping);
+                    break;
+                case 'mc':
+                    nextWordButton.classList.add('hidden');
+                    multipleChoiceContainer.classList.remove('hidden');
+                    displayMultipleChoice();
+                    document.addEventListener('keydown', handleKeydown);
+                    break;
+                case 'flashcard':
+                case 'default':
+                    showWordButton.classList.remove('hidden');
+                    nextWordButton.innerHTML = 'Mot suivant →';
+                    document.addEventListener('keydown', handleKeydown);
+                    break;
+                default:
+                    nextWordButton.innerHTML = 'Mot suivant →';
+                    document.addEventListener('keydown', handleKeydown);
+                    break;
+            }
+             if (isTimerMode) {
+                showWordButton.classList.add('hidden');
                 nextWordButton.classList.add('hidden');
-                displayMultipleChoice();
-            } else {
-                nextWordButton.innerHTML = 'Mot suivant →';
             }
         }
 
         function displayMultipleChoice() {
-            const currentIndex = shuffledIndices[currentWordIndex];
+            const currentIndex = isMixedMode ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
             const correctWord = wordData[currentIndex][targetColumn];
             const allPossibleAnswers = wordData.map(item => item[targetColumn]).filter(Boolean);
             const distractors = getRandomDistractors(correctWord, allPossibleAnswers);
             let answers = shuffle([correctWord, ...distractors]);
-            
             multipleChoiceContainer.innerHTML = '';
             answers.forEach(answer => {
                 const button = document.createElement('button');
@@ -518,6 +632,7 @@
                     button.textContent = answer;
                     button.className = 'bg-gray-200 text-gray-800 p-3 rounded-full font-semibold shadow-md hover:bg-gray-300 transition';
                 }
+                
                 button.dataset.answer = answer;
                 button.addEventListener('click', (e) => handleMultipleChoiceClick(e.currentTarget, answer === correctWord, correctWord));
                 multipleChoiceContainer.appendChild(button);
@@ -526,7 +641,7 @@
         
         function handleMultipleChoiceClick(clickedButton, isCorrect, correctAnswer) {
             const timeForWord = performance.now() - wordStartTime;
-            const currentIndex = shuffledIndices[currentWordIndex];
+            const currentIndex = isMixedMode ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
             
             // Disable all buttons
             const allButtons = multipleChoiceContainer.querySelectorAll('button');
@@ -554,16 +669,28 @@
                 wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: true });
                 nextWordButton.innerHTML = 'Mot suivant →';
                 nextWordButton.classList.remove('hidden');
-                document.removeEventListener('keydown', handleKeydown);
                 document.addEventListener('keydown', handleKeydown);
             }
         }
 
         function checkTypedAnswer() {
-            if (!isTypingMode || isError) return;
-            const typedWord = typingInput.value.trim().toLowerCase();
-            const currentIndex = shuffledIndices[currentWordIndex];
+            const currentMode = isMixedMode ? shuffledIndices[currentWordIndex].mode : null;
+            if (!isTypingMode && currentMode !== 'typing') return;
+
+            if (isError) {
+                nextWord();
+                return;
+            }
+
+            const typedWordRaw = typingInput.value.trim();
+            if (typedWordRaw === '') {
+                showCustomAlert('Attention', 'Veuillez entrer une réponse avant de continuer.');
+                return;
+            }
+            const typedWord = typedWordRaw.toLowerCase();
+            const currentIndex = isMixedMode ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
             const correctWord = wordData[currentIndex][targetColumn].trim().toLowerCase();
+            
             if (typedWord === correctWord) {
                 isError = false;
                 typingInput.classList.add('border-green-500', 'bg-green-100', 'correct-answer');
@@ -576,13 +703,13 @@
                 revealWord();
                 nextWordButton.innerHTML = 'Mot suivant →';
                 isError = true;
-                document.removeEventListener('keydown', handleTyping);
-                document.addEventListener('keydown', handleKeydown);
+                const timeForWord = performance.now() - wordStartTime;
+                wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: true });
             }
         }
 
         function revealWord() {
-            const currentIndex = shuffledIndices[currentWordIndex];
+            const currentIndex = isMixedMode ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
             const currentWord = wordData[currentIndex];
             const targetContent = currentWord[targetColumn];
 
@@ -592,7 +719,7 @@
                 targetWordDisplay.textContent = targetContent;
             }
 
-            if (showOtherColsCheckbox.checked) {
+            if (showOtherColsCheckbox.checked && !isMixedMode) {
                 const otherColumns = Object.keys(currentWord).filter(key => key !== sourceColumn && key !== targetColumn && ['1', '2', '3', '4', '5'].includes(key) && currentWord[key]).map(key => currentWord[key]);
                 if (otherColumns.length > 0) {
                     otherColsDisplay.innerHTML = otherColumns.join(' / ');
@@ -604,20 +731,27 @@
         }
 
         function nextWord() {
-            if (!isTypingMode && !isMultipleChoiceMode) { // Only record time here for non-interactive modes
-                 const timeForWord = performance.now() - wordStartTime;
-                 const currentIndex = shuffledIndices[currentWordIndex];
-                 wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: isError });
-            } else if (isTypingMode && !isError) { // For typing mode, time is recorded on success
-                const timeForWord = performance.now() - wordStartTime;
-                const currentIndex = shuffledIndices[currentWordIndex];
-                wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: false });
-            } else if ((isTypingMode || isMultipleChoiceMode) && isError) { // For errors, time is already recorded, just push index
-                // Time already recorded in checkTypedAnswer/handleMultipleChoiceClick on error
-            }
-            currentWordIndex++;
+            const currentMode = isMixedMode ? shuffledIndices[currentWordIndex].mode : null;
+            const currentIndex = isMixedMode ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
 
-            if (isReviewAllMode) {
+            // For non-interactive modes, record time here
+            if (!isTypingMode && !isMultipleChoiceMode && !isMixedMode) {
+                 const timeForWord = performance.now() - wordStartTime;
+                 wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: isError });
+            } 
+            // For flashcard in mixed mode
+            else if (isMixedMode && currentMode === 'flashcard') {
+                const timeForWord = performance.now() - wordStartTime;
+                wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: isError });
+            }
+            // For typing mode (mixed or not) on success
+            else if ((isTypingMode || (isMixedMode && currentMode === 'typing')) && !isError) {
+                const timeForWord = performance.now() - wordStartTime;
+                wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: false });
+            }
+            
+            currentWordIndex++;
+            if ((isReviewAllMode || isTimerMode)) {
                 displayWord();
             } else if (currentWordIndex < shuffledIndices.length) {
                 displayWord();
@@ -630,6 +764,7 @@
             gameStarted = false;
             clearInterval(timerInterval);
             clearTimeout(masterTimer);
+            clearInterval(wordTimerInterval);
             document.removeEventListener('keydown', handleKeydown);
             document.removeEventListener('keydown', handleTyping);
 
@@ -640,17 +775,26 @@
             replayButton.classList.add('hidden');
             replayOptionsDiv.classList.add('hidden');
             reviewAllSummary.classList.add('hidden');
-            
-            if (isMultipleChoiceMode) {
+
+            if (isMultipleChoiceMode || isMixedMode || isTypingMode) {
                 const errorWords = wordTimings.filter(item => item.isError);
-                historyTitle.textContent = "Mots avec erreur";
-                populateHistoryTable(errorWords);
                 if (errorWords.length > 0) {
+                    historyTitle.textContent = "Mots avec erreur";
+                    populateHistoryTable(errorWords);
                     replayButton.textContent = 'Rejouer les mots incorrects';
                     replayButton.classList.remove('hidden');
+                } else {
+                    wordTimings.sort((a, b) => b.time - a.time);
+                    historyTitle.textContent = "Historique des mots et temps";
+                    populateHistoryTable(wordTimings);
+                    if (wordTimings.length > 0) {
+                        replayButton.textContent = 'Rejouer les mots les plus longs';
+                        replayButton.classList.remove('hidden');
+                        replayOptionsDiv.classList.remove('hidden');
+                    }
                 }
             } else {
-                 if (isReviewAllMode && wordTimings.length > 0) {
+                 if ((isReviewAllMode || isTimerMode) && wordTimings.length > 0) {
                     const aggregatedTimes = new Map();
                     wordTimings.forEach(item => {
                         const key = item['1'] + '||' + item['2'];
@@ -660,19 +804,19 @@
                         const entry = aggregatedTimes.get(key);
                         entry.time += item.time;
                         entry.count += 1;
-                    });
+                     });
                     wordTimings = Array.from(aggregatedTimes.values());
                     reviewAllSummary.textContent = `Nombre de mots vus : ${wordTimings.reduce((acc, item) => acc + item.count, 0)}`;
                     reviewAllSummary.classList.remove('hidden');
                 }
 
                 wordTimings.sort((a, b) => b.isError - a.isError || b.time - a.time);
-                historyTitle.textContent = isReviewAllMode ? "Mots affichés le plus longtemps" : "Historique des mots et temps";
+                historyTitle.textContent = (isReviewAllMode || isTimerMode) ? "Mots affichés le plus longtemps" : "Historique des mots et temps";
                 populateHistoryTable(wordTimings);
                 
                 const hasErrors = wordTimings.some(item => item.isError);
                 const hasWords = wordTimings.length > 0;
-
+                
                 if (hasErrors) {
                     replayButton.textContent = 'Rejouer les mots incorrects';
                     replayButton.classList.remove('hidden');
@@ -709,6 +853,7 @@
                 gameStarted = false;
                 clearInterval(timerInterval);
                 clearTimeout(masterTimer);
+                clearInterval(wordTimerInterval);
                 document.removeEventListener('keydown', handleKeydown);
                 document.removeEventListener('keydown', handleTyping);
             }
@@ -717,29 +862,61 @@
             endScreen.classList.add('hidden');
             chronometerLabel.classList.remove('hidden');
             timerDisplay.textContent = '0.000s';
-            checkMultipleChoiceAvailability();
+            
+            // NEW: Uncheck all checkboxes
+            typingModeCheckbox.checked = false;
+            multipleChoiceCheckbox.checked = false;
+            flashcardModeCheckbox.checked = false;
+            mixedModeCheckbox.checked = false;
+            reviewAllCheckbox.checked = false;
+            timerModeCheckbox.checked = false;
+            inOrderCheckbox.checked = false;
+            showOtherColsCheckbox.checked = false;
+            
+            // Call handleModeChange to reset the UI to a clean state
+            handleModeChange();
         }
 
         function triggerNextAction() {
-            if (!gameStarted) return;
-            // For MC mode, this is only called after a wrong answer via the button's click
-            if ((isMultipleChoiceMode || isTypingMode) && isError) {
-                 nextWord();
-            } else if (isTypingMode) {
-                checkTypedAnswer();
-            } else if (isFlashcardMode) {
-                 if(isWordRevealed) nextWord();
-                 else revealWord();
-            } else {
-                nextWord();
+            if (!gameStarted || isTimerMode) return;
+
+            const currentMode = isMixedMode ? shuffledIndices[currentWordIndex].mode : null;
+            const isEffectiveMC = isMultipleChoiceMode || (isMixedMode && currentMode === 'mc');
+            const isEffectiveTyping = isTypingMode || (isMixedMode && currentMode === 'typing');
+            const isEffectiveFlashcard = isFlashcardMode || (isMixedMode && currentMode === 'flashcard');
+
+            if (isEffectiveMC) {
+                if (isError) {
+                    nextWord();
+                }
+                return;
             }
+
+            if (isEffectiveTyping) {
+                checkTypedAnswer();
+                return;
+            }
+            
+            if (isEffectiveFlashcard) {
+                if (isWordRevealed) {
+                    nextWord();
+                } else {
+                    revealWord();
+                }
+                return;
+            }
+            
+            // Default mode (and now Review All by itself)
+            nextWord();
         }
 
         function handleKeydown(event) {
             if (event.key === 'ArrowRight') triggerNextAction();
         }
         function handleTyping(event) {
-            if (event.key === 'Enter') checkTypedAnswer();
+            if (event.key === 'Enter') {
+                checkTypedAnswer();
+            }
         }
         
         function handleReplay() {
@@ -767,7 +944,7 @@
         nextWordButton.addEventListener('click', triggerNextAction);
         showWordButton.addEventListener('click', revealWord);
         
-        const mainModes = [typingModeCheckbox, multipleChoiceCheckbox, flashcardModeCheckbox];
+        const mainModes = [typingModeCheckbox, multipleChoiceCheckbox, flashcardModeCheckbox, mixedModeCheckbox];
         mainModes.forEach(checkbox => {
             checkbox.addEventListener('change', (e) => {
                 if (e.target.checked) {
@@ -778,22 +955,53 @@
         });
 
         reviewAllCheckbox.addEventListener('change', handleModeChange);
+        timerModeCheckbox.addEventListener('change', handleModeChange);
         
         function handleModeChange() {
-            const isReview = reviewAllCheckbox.checked;
+            // Get current state of all checkboxes
+            const isTyping = typingModeCheckbox.checked;
             const isMC = multipleChoiceCheckbox.checked;
-            const isAnyMainMode = mainModes.some(cb => cb.checked);
+            const isFlash = flashcardModeCheckbox.checked;
+            const isMixed = mixedModeCheckbox.checked;
+            const isReview = reviewAllCheckbox.checked;
+            const isTimer = timerModeCheckbox.checked;
 
-            reviewAllCheckbox.disabled = isAnyMainMode;
-            mainModes.forEach(cb => {
-                if (cb.id !== 'multiple-choice-checkbox' || !cb.disabled) { // Prevent re-enabling disabled MC checkbox
-                     cb.disabled = isReview;
-                }
-            });
-            
-            wordLimitInput.disabled = isMC || isReview;
-            inOrderCheckbox.disabled = isReview;
-            showOtherColsCheckbox.disabled = isMC;
+            // --- Reset all disabled states to their base availability ---
+            checkMultipleChoiceAvailability(); // This sets the baseline for MC and Mixed
+            typingModeCheckbox.disabled = false;
+            flashcardModeCheckbox.disabled = false;
+            reviewAllCheckbox.disabled = false;
+            timerModeCheckbox.disabled = false;
+
+            // --- Apply disabling rules based on the currently selected mode (by priority) ---
+            if (isTimer) {
+                // Timer is active -> disable incompatible modes.
+                typingModeCheckbox.disabled = true;
+                multipleChoiceCheckbox.disabled = true;
+                flashcardModeCheckbox.disabled = true;
+                mixedModeCheckbox.disabled = true;
+            } else if (isReview) {
+                // Review is active -> disable Saisie, MC, and Mixte.
+                typingModeCheckbox.disabled = true;
+                multipleChoiceCheckbox.disabled = true;
+                mixedModeCheckbox.disabled = true;
+            } else if (isMixed) {
+                // Mixed is active -> disable other specific modes, plus Review and Timer
+                typingModeCheckbox.disabled = true;
+                multipleChoiceCheckbox.disabled = true;
+                flashcardModeCheckbox.disabled = true;
+                reviewAllCheckbox.disabled = true;
+                timerModeCheckbox.disabled = true;
+            } else if (isTyping || isMC || isFlash) {
+                // Any other specific interactive mode is active -> disable Mixte, Review, and Timer
+                mixedModeCheckbox.disabled = true;
+                reviewAllCheckbox.disabled = true;
+                timerModeCheckbox.disabled = true;
+            }
+
+            // --- Final state for associated inputs ---
+            timerSecondsInput.disabled = timerModeCheckbox.disabled || !timerModeCheckbox.checked;
+            reviewAllSecondsInput.disabled = reviewAllCheckbox.disabled || !reviewAllCheckbox.checked;
         }
         
         window.addEventListener('load', () => {
