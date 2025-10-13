@@ -31,6 +31,9 @@
         .incorrect-answer {
              transition: all 0.2s ease-in-out;
         }
+        .preserve-lines {
+            white-space: pre-line;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
@@ -171,7 +174,7 @@
         <div id="game-screen" class="hidden w-full">
             <div class="flex justify-between items-center mb-6 w-full"><button id="return-button" class="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-full shadow-sm hover:bg-red-600 transition duration-300">Retour au menu</button><div class="text-sm font-medium text-gray-500" id="progress-display"></div><div class="flex items-baseline gap-2"><h2 id="chronometer-label" class="text-sm font-medium text-gray-500">Chronomètre</h2><div id="timer-display" class="text-sm font-bold text-gray-900 tabular-nums">0.000s</div></div></div>
             <div id="word-display" class="min-h-[250px] flex flex-col items-center justify-center"><p class="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-800 break-words max-w-full leading-tight">Mot</p></div>
-            <div id="flashcard-reveal" class="invisible text-xl my-4 text-gray-600 italic min-h-[56px]"><span id="target-word-display" class="font-bold"></span><div id="other-cols-display" class="hidden text-sm mt-2 text-gray-500"></div></div>
+            <div id="flashcard-reveal" class="invisible text-xl my-4 text-gray-600 italic min-h-[56px]"><span id="target-word-display" class="font-bold preserve-lines"></span><div id="other-cols-display" class="hidden text-sm mt-2 text-gray-500"></div></div>
             <div class="mt-2 w-full flex flex-col items-center"><div class="flex justify-center items-center gap-4"><button id="show-word-button" class="hidden mb-4 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-green-700 transition duration-300 transform hover:scale-105">Voir le mot</button><button id="next-word-button" class="mb-4 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105">Mot suivant →</button></div><input type="text" id="typing-input" class="hidden w-full max-w-md p-3 text-center border-2 border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200" placeholder="Tapez la réponse ici"><div id="multiple-choice-container" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg mt-4"></div><div id="game-instruction" class="text-gray-500 text-sm mt-4">Utilisez la flèche droite (→) pour passer au mot suivant.</div></div>
         </div>
         
@@ -415,9 +418,43 @@
             }
             return Array.from(distractors);
         }
+
+        function parseTsvWithNewlines(text) {
+            const lines = text.trim().split(/\r\n|\n|\r/);
+            const result = [];
+            let currentLine = '';
+
+            for (const line of lines) {
+                currentLine += line;
+                if ((currentLine.match(/"/g) || []).length % 2 === 0) {
+                    const columns = currentLine.match(/("[\s\S]*?"|[^"\t]+)(?=\t|$)/g) || [];
+                    const cleanedColumns = columns.map(cell => {
+                        let cleaned = cell.trim();
+                        if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
+                            cleaned = cleaned.substring(1, cleaned.length - 1);
+                        }
+                        return cleaned.replace(/""/g, '"');
+                    });
+
+                    result.push(cleanedColumns);
+                    currentLine = '';
+                } else {
+                    currentLine += '\n';
+                }
+            }
+            return result;
+        }
         
         // --- GAME LIFECYCLE ---
         async function startGame(wordsToPlay) {
+            if (timerModeCheckbox.checked && !audioCtx) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.warn('Web Audio API is not supported in this browser.');
+                }
+            }
+
             if (!wordsToPlay) {
                 const isImageMode = !imageTabContent.classList.contains('hidden');
                 if (isImageMode) {
@@ -433,9 +470,8 @@
                         showCustomAlert('Erreur', 'Veuillez coller des mots.');
                         return;
                     }
-                    const rows = rawInput.split('\n');
-                    wordData = rows.map(row => {
-                        const cols = row.split('\t');
+                    const parsedRows = parseTsvWithNewlines(rawInput);
+                    wordData = parsedRows.map(cols => {
                         return { '1': cols[0] || '', '2': cols[1] || '', '3': cols[2] || '', '4': cols[3] || '', '5': cols[4] || '' };
                     }).filter(item => Object.values(item).some(val => val.trim() !== ''));
                 }
@@ -556,7 +592,7 @@
             if (sourceContent.startsWith('data:image')) {
                 displayElement.innerHTML = `<img src="${sourceContent}" class="max-h-60 object-contain mx-auto rounded-lg shadow-md">`;
             } else {
-                displayElement.innerHTML = `<p class="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-800 break-words max-w-full leading-tight">${sourceContent}</p>`;
+                displayElement.innerHTML = `<p class="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-800 break-words max-w-full leading-tight preserve-lines">${sourceContent}</p>`;
             }
 
             wordStartTime = performance.now();
@@ -580,9 +616,9 @@
                 activeMode = 'typing';
             } else if (isMultipleChoiceMode) {
                 activeMode = 'mc';
-            } else if (isFlashcardMode || isReviewAllMode) {
+            } else if (isFlashcardMode) {
                 activeMode = 'flashcard';
-            } else { // Covers Default and Timer mode
+            } else { // Covers Default, Timer, and ReviewAll by itself
                 activeMode = 'default';
             }
 
@@ -863,7 +899,7 @@
             chronometerLabel.classList.remove('hidden');
             timerDisplay.textContent = '0.000s';
             
-            // NEW: Uncheck all checkboxes
+            // Uncheck all checkboxes
             typingModeCheckbox.checked = false;
             multipleChoiceCheckbox.checked = false;
             flashcardModeCheckbox.checked = false;
@@ -884,7 +920,7 @@
             const isEffectiveMC = isMultipleChoiceMode || (isMixedMode && currentMode === 'mc');
             const isEffectiveTyping = isTypingMode || (isMixedMode && currentMode === 'typing');
             const isEffectiveFlashcard = isFlashcardMode || (isMixedMode && currentMode === 'flashcard');
-
+            
             if (isEffectiveMC) {
                 if (isError) {
                     nextWord();
@@ -905,8 +941,18 @@
                 }
                 return;
             }
-            
-            // Default mode (and now Review All by itself)
+
+            // Default mode and Review All by itself will fall through to here
+             if (isReviewAllMode) {
+                 if (isWordRevealed) {
+                    nextWord();
+                } else {
+                    revealWord();
+                }
+                return;
+            }
+
+            // Default mode
             nextWord();
         }
 
@@ -972,6 +1018,7 @@
             flashcardModeCheckbox.disabled = false;
             reviewAllCheckbox.disabled = false;
             timerModeCheckbox.disabled = false;
+            mixedModeCheckbox.disabled = mixedModeCheckbox.disabled; // Keep its base disabled state
 
             // --- Apply disabling rules based on the currently selected mode (by priority) ---
             if (isTimer) {
@@ -1000,8 +1047,8 @@
             }
 
             // --- Final state for associated inputs ---
-            timerSecondsInput.disabled = timerModeCheckbox.disabled || !timerModeCheckbox.checked;
-            reviewAllSecondsInput.disabled = reviewAllCheckbox.disabled || !reviewAllCheckbox.checked;
+            timerSecondsInput.disabled = isTimer ? false : true;
+            reviewAllSecondsInput.disabled = isReview ? false : true;
         }
         
         window.addEventListener('load', () => {
@@ -1011,3 +1058,4 @@
     </script>
 </body>
 </html>
+
