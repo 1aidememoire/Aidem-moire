@@ -147,17 +147,17 @@
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-4">
-                 <div class="flex items-center space-x-2"><input type="checkbox" id="typing-mode-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="typing-mode-checkbox" class="text-gray-700">Mode Saisie</label></div>
-                 <div class="flex items-center space-x-2"><input type="checkbox" id="multiple-choice-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="multiple-choice-checkbox" class="text-gray-700" id="multiple-choice-label">Mode Choix multiples</label></div>
-                 <div class="flex items-center space-x-2"><input type="checkbox" id="flashcard-mode-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="flashcard-mode-checkbox" class="text-gray-700">Mode Flashcards</label></div>
-                 <div class="flex items-center space-x-2"><input type="checkbox" id="mixed-mode-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="mixed-mode-checkbox" class="text-gray-700" id="mixed-mode-label">Mode Mixte</label></div>
-                 <div class="flex items-center space-x-2 col-span-1 md:col-span-2"><input type="checkbox" id="review-all-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="review-all-checkbox" class="text-gray-700">Tout revoir en aléatoire pendant</label><input type="number" id="review-all-seconds" min="1" class="w-20 p-1 border border-gray-300 rounded-md" placeholder="ex: 60"><label for="review-all-seconds" class="text-gray-700">secondes</label></div>
+                <div class="flex items-center space-x-2"><input type="checkbox" id="typing-mode-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="typing-mode-checkbox" class="text-gray-700">Mode Saisie</label></div>
+                <div class="flex items-center space-x-2"><input type="checkbox" id="multiple-choice-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="multiple-choice-checkbox" class="text-gray-700" id="multiple-choice-label">Mode Choix multiples</label></div>
+                <div class="flex items-center space-x-2"><input type="checkbox" id="flashcard-mode-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="flashcard-mode-checkbox" class="text-gray-700">Mode Flashcards</label></div>
+                <div class="flex items-center space-x-2"><input type="checkbox" id="mixed-mode-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="mixed-mode-checkbox" class="text-gray-700" id="mixed-mode-label">Mode Mixte</label></div>
+                <div class="flex items-center space-x-2 col-span-1 md:col-span-2"><input type="checkbox" id="review-all-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="review-all-checkbox" class="text-gray-700">Tout revoir en aléatoire pendant</label><input type="number" id="review-all-seconds" min="1" class="w-20 p-1 border border-gray-300 rounded-md" placeholder="ex: 60"><label for="review-all-seconds" class="text-gray-700">secondes</label></div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-4">
-                 <div class="flex items-center space-x-2"><input type="checkbox" id="in-order-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="in-order-checkbox" class="text-gray-700">Lire dans l'ordre</label></div>
-                 <div class="flex items-center space-x-2"><input type="checkbox" id="show-other-cols-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="show-other-cols-checkbox" class="text-gray-700">Afficher les autres données</label></div>
-                 <div class="flex items-center space-x-2 col-span-1 md:col-span-2"><input type="checkbox" id="timer-mode-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="timer-mode-checkbox" class="text-gray-700">Timer</label><input type="number" id="timer-seconds" min="0.1" max="99" step="0.1" class="w-20 p-1 border border-gray-300 rounded-md" placeholder="ex: 5"><label for="timer-seconds" class="text-gray-700">secondes</label></div>
+                <div class="flex items-center space-x-2"><input type="checkbox" id="in-order-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="in-order-checkbox" class="text-gray-700">Lire dans l'ordre</label></div>
+                <div class="flex items-center space-x-2"><input type="checkbox" id="show-other-cols-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="show-other-cols-checkbox" class="text-gray-700">Afficher les autres données</label></div>
+                <div class="flex items-center space-x-2 col-span-1 md:col-span-2"><input type="checkbox" id="timer-mode-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="timer-mode-checkbox" class="text-gray-700">Timer</label><input type="number" id="timer-seconds" min="0.1" max="99" step="0.1" class="w-20 p-1 border border-gray-300 rounded-md" placeholder="ex: 5"><label for="timer-seconds" class="text-gray-700">secondes</label></div>
             </div>
 
 
@@ -515,7 +515,6 @@
                 const typingIndices = shuffledAllIndices.slice(mcCount + flashcardCount).map(index => ({ index, mode: 'typing' }));
                 
                 shuffledIndices = shuffle([...mcIndices, ...flashcardIndices, ...typingIndices]);
-
             } else {
                 const indices = Array.from({ length: wordData.length }, (_, i) => i);
                 shuffledIndices = inOrderCheckbox.checked && !isReviewAllMode && !isTimerMode ? indices : shuffle(indices);
@@ -538,7 +537,7 @@
             gameStarted = true;
             startTime = performance.now();
             timerInterval = setInterval(updateTimer, 10);
-            
+
             if (isReviewAllMode) {
                 const duration = parseInt(reviewAllSecondsInput.value);
                 if (isNaN(duration) || duration <= 0) {
@@ -618,7 +617,7 @@
                 activeMode = 'mc';
             } else if (isFlashcardMode) {
                 activeMode = 'flashcard';
-            } else { // Covers Default, Timer, and ReviewAll by itself
+            } else { // Covers Default, ReviewAll and Timer mode
                 activeMode = 'default';
             }
 
@@ -653,7 +652,8 @@
         }
 
         function displayMultipleChoice() {
-            const currentIndex = isMixedMode ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
+            const currentIndex = isMixedMode ?
+                shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
             const correctWord = wordData[currentIndex][targetColumn];
             const allPossibleAnswers = wordData.map(item => item[targetColumn]).filter(Boolean);
             const distractors = getRandomDistractors(correctWord, allPossibleAnswers);
@@ -710,9 +710,9 @@
         }
 
         function checkTypedAnswer() {
-            const currentMode = isMixedMode ? shuffledIndices[currentWordIndex].mode : null;
+            const currentMode = isMixedMode ?
+                shuffledIndices[currentWordIndex].mode : null;
             if (!isTypingMode && currentMode !== 'typing') return;
-
             if (isError) {
                 nextWord();
                 return;
@@ -726,7 +726,6 @@
             const typedWord = typedWordRaw.toLowerCase();
             const currentIndex = isMixedMode ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
             const correctWord = wordData[currentIndex][targetColumn].trim().toLowerCase();
-            
             if (typedWord === correctWord) {
                 isError = false;
                 typingInput.classList.add('border-green-500', 'bg-green-100', 'correct-answer');
@@ -745,10 +744,11 @@
         }
 
         function revealWord() {
-            const currentIndex = isMixedMode ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
+            const currentIndex = isMixedMode ?
+                shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
             const currentWord = wordData[currentIndex];
             const targetContent = currentWord[targetColumn];
-
+            
             if (targetContent.startsWith('data:image')) {
                 targetWordDisplay.innerHTML = `<img src="${targetContent}" class="max-h-24 object-contain mx-auto rounded-lg">`;
             } else {
@@ -767,7 +767,8 @@
         }
 
         function nextWord() {
-            const currentMode = isMixedMode ? shuffledIndices[currentWordIndex].mode : null;
+            const currentMode = isMixedMode ?
+                shuffledIndices[currentWordIndex].mode : null;
             const currentIndex = isMixedMode ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
 
             // For non-interactive modes, record time here
@@ -840,7 +841,7 @@
                         const entry = aggregatedTimes.get(key);
                         entry.time += item.time;
                         entry.count += 1;
-                     });
+                    });
                     wordTimings = Array.from(aggregatedTimes.values());
                     reviewAllSummary.textContent = `Nombre de mots vus : ${wordTimings.reduce((acc, item) => acc + item.count, 0)}`;
                     reviewAllSummary.classList.remove('hidden');
@@ -849,10 +850,8 @@
                 wordTimings.sort((a, b) => b.isError - a.isError || b.time - a.time);
                 historyTitle.textContent = (isReviewAllMode || isTimerMode) ? "Mots affichés le plus longtemps" : "Historique des mots et temps";
                 populateHistoryTable(wordTimings);
-                
                 const hasErrors = wordTimings.some(item => item.isError);
                 const hasWords = wordTimings.length > 0;
-                
                 if (hasErrors) {
                     replayButton.textContent = 'Rejouer les mots incorrects';
                     replayButton.classList.remove('hidden');
@@ -873,7 +872,8 @@
                 const sourceContent = item[sourceColumn];
                 const targetContent = item[targetColumn];
                 const sourceCell = sourceContent.startsWith('data:image') ? `<td class="py-2 px-4 flex justify-center"><img src="${sourceContent}" class="h-12 w-12 object-cover rounded-md"></td>` : `<td class="py-2 px-4 whitespace-nowrap">${sourceContent}</td>`;
-                const targetCell = targetContent.startsWith('data:image') ? `<td class="py-2 px-4 flex justify-center"><img src="${targetContent}" class="h-12 w-12 object-cover rounded-md"></td>` : `<td class="py-2 px-4 whitespace-nowrap">${targetContent}</td>`;
+                const targetCell = 
+                    targetContent.startsWith('data:image') ? `<td class="py-2 px-4 flex justify-center"><img src="${targetContent}" class="h-12 w-12 object-cover rounded-md"></td>` : `<td class="py-2 px-4 whitespace-nowrap">${targetContent}</td>`;
                 
                 const otherColumns = Object.keys(item).filter(key => key !== sourceColumn && key !== targetColumn && ['1', '2', '3', '4', '5'].includes(key) && item[key]).map(key => item[key]);
                 const row = document.createElement('tr');
@@ -913,6 +913,7 @@
             handleModeChange();
         }
 
+        /** MODIFIED FUNCTION **/
         function triggerNextAction() {
             if (!gameStarted || isTimerMode) return;
 
@@ -920,7 +921,8 @@
             const isEffectiveMC = isMultipleChoiceMode || (isMixedMode && currentMode === 'mc');
             const isEffectiveTyping = isTypingMode || (isMixedMode && currentMode === 'typing');
             const isEffectiveFlashcard = isFlashcardMode || (isMixedMode && currentMode === 'flashcard');
-            
+
+            // Handle multiple choice actions
             if (isEffectiveMC) {
                 if (isError) {
                     nextWord();
@@ -928,11 +930,13 @@
                 return;
             }
 
+            // Handle typing actions
             if (isEffectiveTyping) {
                 checkTypedAnswer();
                 return;
             }
             
+            // Handle classic flashcard behavior (reveal then next)
             if (isEffectiveFlashcard) {
                 if (isWordRevealed) {
                     nextWord();
@@ -942,17 +946,9 @@
                 return;
             }
 
-            // Default mode and Review All by itself will fall through to here
-             if (isReviewAllMode) {
-                 if (isWordRevealed) {
-                    nextWord();
-                } else {
-                    revealWord();
-                }
-                return;
-            }
-
-            // Default mode
+            // For all other cases (Default mode, or Review All mode running by itself),
+            // the "next" action is to simply move to the next word.
+            // Revealing the word is handled exclusively by the "Voir le mot" button.
             nextWord();
         }
 
@@ -1018,7 +1014,7 @@
             flashcardModeCheckbox.disabled = false;
             reviewAllCheckbox.disabled = false;
             timerModeCheckbox.disabled = false;
-            mixedModeCheckbox.disabled = mixedModeCheckbox.disabled; // Keep its base disabled state
+            // Keep its base disabled state for mixedModeCheckbox
 
             // --- Apply disabling rules based on the currently selected mode (by priority) ---
             if (isTimer) {
@@ -1047,8 +1043,8 @@
             }
 
             // --- Final state for associated inputs ---
-            timerSecondsInput.disabled = isTimer ? false : true;
-            reviewAllSecondsInput.disabled = isReview ? false : true;
+            timerSecondsInput.disabled = !isTimer;
+            reviewAllSecondsInput.disabled = !isReview;
         }
         
         window.addEventListener('load', () => {
@@ -1058,4 +1054,3 @@
     </script>
 </body>
 </html>
-
