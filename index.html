@@ -13,17 +13,18 @@
             color: #ef4444; /* red-500 */
             background-color: #fee2e2; /* red-100 */
         }
+        /* NOUVEAUX STYLES D'ONGLETS */
         .tab-button {
-            @apply px-4 py-2 font-semibold;
+            @apply px-4 py-3 font-semibold rounded-lg w-full text-center transition-colors duration-200;
         }
         .tab-button.active {
-            @apply border-b-2 border-blue-500 text-blue-600;
+            @apply bg-indigo-600 text-white;
         }
         .tab-button.inactive {
-            @apply text-blue-500 hover:text-blue-700;
+            @apply bg-slate-100 text-slate-700 hover:bg-slate-200;
         }
-        input:disabled, input[type="checkbox"]:disabled + label {
-            @apply bg-gray-200 cursor-not-allowed text-gray-400;
+        input:disabled, input[type="checkbox"]:disabled + label, select:disabled, option:disabled {
+            @apply bg-slate-200 cursor-not-allowed text-slate-400;
         }
         .correct-answer {
             transition: all 0.2s ease-in-out;
@@ -36,19 +37,21 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
 
-    <div id="game-container" class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-4xl text-center flex flex-col items-center">
+    <div id="game-container" class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-5xl text-center flex flex-col items-center">
 
         <div id="custom-alert" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
             <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
                 <div class="mt-3 text-center">
+    
                     <h3 id="alert-title" class="text-lg leading-6 font-medium text-gray-900"></h3>
                     <div class="mt-2 px-7 py-3">
                         <p id="alert-message" class="text-sm text-gray-500"></p>
                     </div>
-                    <div class="items-center px-4 py-3">
-                        <button id="alert-ok-button" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+         
+                   <div class="items-center px-4 py-3">
+                        <button id="alert-ok-button" class="px-4 py-2 bg-indigo-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             OK
                         </button>
                     </div>
@@ -61,28 +64,35 @@
                 <div class="mt-3">
                     <h3 class="text-xl text-center leading-6 font-bold text-gray-900">Aide sur le fonctionnement du jeu</h3>
                     <div class="mt-4 px-2 py-3 text-left max-h-[60vh] overflow-y-auto">
+     
                         <p class="text-sm text-gray-700">
                             Ce jeu a pour objectif de vous aider à mémoriser les informations que vous souhaitez connaître : capitale, nombre d'habitants par pays, vocabulaire, dates historiques, grammaire...
                         </p>
+  
                         <p class="text-sm text-gray-700 mt-2">
                             Pour l'utiliser, vous devez avoir renseigné un classeur avec au moins 2 colonnes d'informations liées. Par exemple :
                         </p>
                         <div class="my-4 border rounded-lg overflow-hidden shadow-sm">
                             <table class="w-full text-sm text-left text-gray-500">
-                                <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+             
+                                <thead class="text-xs text-slate-700 uppercase bg-slate-50">
                                     <tr>
                                         <th scope="col" class="px-4 py-2">Colonne A</th>
                                         <th scope="col" class="px-4 py-2">Colonne B</th>
                                     </tr>
+                 
                                 </thead>
                                 <tbody>
                                     <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">France</td><td class="px-4 py-2">Paris</td></tr>
+         
                                     <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Espagne</td><td class="px-4 py-2">Madrid</td></tr>
                                     <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Allemagne</td><td class="px-4 py-2">Berlin</td></tr>
+                     
                                     <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Irlande</td><td class="px-4 py-2">Dublin</td></tr>
                                     <tr class="bg-white"><td class="px-4 py-2 font-medium text-gray-900">Angleterre</td><td class="px-4 py-2">Londres</td></tr>
                                 </tbody>
-                            </table>
+  
+                           </table>
                         </div>
                         <p class="text-sm text-gray-700 mt-2">
                             Copiez ces informations et collez-les dans la case centrale. Ensuite, activez une des options et lancez le jeu.
@@ -90,23 +100,27 @@
                         
                         <ul class="list-disc list-inside text-sm text-gray-700 mt-2">
                             <li>Le <b>mode Saisie</b> vous demande de taper l'information recherchée.</li>
+  
                             <li>Le <b>mode Choix multiples</b> vous présente 4 options et vous demande de cliquer sur la bonne réponse. Pour l'activer, il est nécessaire d'avoir collé au moins 8 cases d'un tableau.</li>
                             <li>Le <b>mode Flashcards</b> vous présente un mot avant de montrer l'information associée.</li>
                             <li>Le <b>mode Mixte</b>, qui nécessite au moins 20 cases d'un tableau, présente les mots selon les 3 modes ci-dessus, de façon aléatoire.</li>
                         </ul>
 
                         <p class="text-sm text-gray-700 mt-4">
-                            Vous pouvez également utiliser le mode par défaut en ne cliquant sur aucune des options ci-dessus. Ce mode vous montre un mot et vous pouvez ensuite passer au suivant.
+                            Vous pouvez également utiliser le mode par défaut en ne cliquant on aucune des options ci-dessus. Ce mode vous montre un mot et vous pouvez ensuite passer au suivant.
                         </p>
 
                         <p class="text-sm text-gray-700 mt-4">
                             Plusieurs options complémentaires sont également disponibles : 
                         </p>
+              
                         <ul class="list-disc list-inside text-sm text-gray-700 mt-2">
+                            <li><b>Afficher X mots source (1-4)</b> vous permet d'afficher 1, 2, 3 ou 4 mots/images de la colonne source en même temps. Si vous choisissez 2, 3 ou 4, les modes Saisie, Choix Multiples et Mixte sont désactivés.</li>
                             <li><b>Tout revoir en aléatoire pendant X secondes</b> vous permet de fixer une durée de fin plutôt qu'un nombre de mots.</li>
                             <li><b>Lire dans l'ordre</b> vous permet de revoir les informations renseignées dans l'ordre dans lequel ils ont été renseignés.</li>
                             <li>Avec l'option <b>Timer</b>, les mots changent automatiquement et aléatoirement, sans intervention de l'utilisateur.</li>
                             <li><b>Afficher les autres données</b> permet d'afficher les informations renseignées dans les colonnes autres que Source et Cible.</li>
+         
                             <li><b>Limiter le nombre de mots</b> permet, par exemple, de ne revoir que 10 mots sur les 1000 renseignés par exemple. Les 10 mots seront choisis aléatoirement.</li>
                         </ul>
 
@@ -120,7 +134,7 @@
 
                     </div>
                     <div class="items-center px-4 py-3">
-                        <button id="close-help-button" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button id="close-help-button" class="px-4 py-2 bg-indigo-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             Retour
                         </button>
                     </div>
@@ -129,62 +143,136 @@
         </div>
 
         <div id="setup-screen" class="w-full">
-            <h1 class="text-3xl font-bold mb-4 text-gray-800">Préparez le jeu</h1>
-            <p id="help-link" class="text-blue-600 cursor-pointer hover:underline mb-6">Aide sur le fonctionnement du jeu</p>
+            <h1 class="text-3xl font-bold mb-4 text-slate-800">Préparez le jeu</h1>
+            <p id="help-link" class="text-indigo-600 cursor-pointer hover:underline mb-6">Aide sur le fonctionnement du jeu</p>
             
             <div class="w-full mb-4">
-                <div class="flex justify-around border-b">
+       
+                <div class="flex justify-around gap-4">
                     <button id="text-tab-btn" class="tab-button active">Coller le texte</button>
                     <button id="image-tab-btn" class="tab-button inactive">Importer des images</button>
                 </div>
                 <div id="text-tab-content" class="pt-4">
-                    <textarea id="word-input-all" class="w-full h-64 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-gray-700 resize-none" placeholder="Collez ici vos mots (colonnes séparées par des tabulations, lignes par des sauts de ligne)."></textarea>
+    
+                    <textarea id="word-input-all" class="w-full h-64 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-700 resize-none" placeholder="Collez ici vos mots (colonnes séparées par des tabulations, lignes par des sauts de ligne)."></textarea>
                 </div>
                 <div id="image-tab-content" class="hidden pt-4">
-                    <input type="file" id="image-input" multiple accept="image/jpeg, image/png" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
-                    <div id="image-preview-container" class="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 max-h-64 overflow-y-auto p-2 border rounded-lg bg-gray-50"></div>
+                    
+                    <input type="file" id="image-input" multiple accept="image/jpeg, image/png" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+                    <div id="image-preview-container" class="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 max-h-64 overflow-y-auto p-2 border rounded-lg bg-slate-50"></div>
                 </div>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-4">
-                <div class="flex items-center space-x-2"><input type="checkbox" id="typing-mode-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="typing-mode-checkbox" class="text-gray-700">Mode Saisie</label></div>
-                <div class="flex items-center space-x-2"><input type="checkbox" id="multiple-choice-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="multiple-choice-checkbox" class="text-gray-700" id="multiple-choice-label">Mode Choix multiples</label></div>
-                <div class="flex items-center space-x-2"><input type="checkbox" id="flashcard-mode-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="flashcard-mode-checkbox" class="text-gray-700">Mode Flashcards</label></div>
-                <div class="flex items-center space-x-2"><input type="checkbox" id="mixed-mode-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="mixed-mode-checkbox" class="text-gray-700" id="mixed-mode-label">Mode Mixte</label></div>
-                <div class="flex items-center space-x-2 col-span-1 md:col-span-2"><input type="checkbox" id="review-all-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="review-all-checkbox" class="text-gray-700">Tout revoir en aléatoire pendant</label><input type="number" id="review-all-seconds" min="1" class="w-20 p-1 border border-gray-300 rounded-md" placeholder="ex: 60"><label for="review-all-seconds" class="text-gray-700">secondes</label></div>
+            <div class="w-full mb-4">
+                <select id="game-mode-select" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-700 bg-slate-100 text-center">
+                    <option value="default">Mode Par défaut</option>
+                    <option value="typing">Mode Saisie</option>
+                    <option value="flashcard">Mode Flashcards</option>
+                    <option value="mc" id="mc-option">Mode Choix multiples</option>
+                    <option value="mixed" id="mixed-option">Mode Mixte</option>
+                </select>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-4">
-                <div class="flex items-center space-x-2"><input type="checkbox" id="in-order-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="in-order-checkbox" class="text-gray-700">Lire dans l'ordre</label></div>
-                <div class="flex items-center space-x-2"><input type="checkbox" id="show-other-cols-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="show-other-cols-checkbox" class="text-gray-700">Afficher les autres données</label></div>
-                <div class="flex items-center space-x-2 col-span-1 md:col-span-2"><input type="checkbox" id="timer-mode-checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"><label for="timer-mode-checkbox" class="text-gray-700">Timer</label><input type="number" id="timer-seconds" min="0.1" max="99" step="0.1" class="w-20 p-1 border border-gray-300 rounded-md" placeholder="ex: 5"><label for="timer-seconds" class="text-gray-700">secondes</label></div>
-            </div>
-
-
-            <div class="flex flex-col md:flex-row gap-4 w-full mb-4 justify-center items-center">
-                <div class="w-full md:w-1/2"><label for="source-column-select" class="block text-sm font-medium text-gray-700 mb-1 text-left">Colonne source</label><select id="source-column-select" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-gray-700"><option value="1">Colonne 1</option><option value="2">Colonne 2</option><option value="3">Colonne 3</option><option value="4">Colonne 4</option><option value="5">Colonne 5</option></select></div>
-                <div class="w-full md:w-1/2"><label for="target-column-select" class="block text-sm font-medium text-gray-700 mb-1 text-left">Colonne cible</label><select id="target-column-select" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-gray-700"><option value="2">Colonne 2</option><option value="1">Colonne 1</option><option value="3">Colonne 3</option><option value="4">Colonne 4</option><option value="5">Colonne 5</option></select></div>
-            </div>
-
-            <div class="w-full mb-4 flex items-center justify-start gap-4"><label for="word-limit" class="text-gray-700">Limiter le nombre de mots (facultatif)</label><input type="number" id="word-limit" class="w-40 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 text-gray-700" placeholder="Par défaut : tous les mots"></div>
+            <fieldset class="p-4 border border-slate-200 rounded-lg mb-4 text-left bg-slate-100">
+                <legend class="text-base font-semibold text-slate-700 px-2">Modes temporels</legend>
+                <div class="flex items-center space-x-2"><input type="checkbox" id="review-all-checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"><label for="review-all-checkbox" class="text-gray-700">Tout revoir en aléatoire pendant</label><input type="number" id="review-all-seconds" min="1" class="w-20 p-1 border border-gray-300 rounded-md" placeholder="ex: 60"><label for="review-all-seconds" class="text-gray-700">secondes</label></div>
+                <div class="flex items-center space-x-2 mt-2"><input type="checkbox" id="timer-mode-checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"><label for="timer-mode-checkbox" class="text-gray-700">Timer</label><input type="number" id="timer-seconds" min="0.1" max="99" step="0.1" class="w-20 p-1 border border-gray-300 rounded-md" placeholder="ex: 5"><label for="timer-seconds" class="text-gray-700">secondes</label></div>
+            </fieldset>
             
-            <button id="start-button" class="mt-6 px-8 py-3 bg-blue-600 text-white font-semibold rounded-full shadow-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Lancer le jeu</button>
+            <fieldset class="p-4 border border-slate-200 rounded-lg mb-4 text-left bg-slate-100">
+                <legend class="text-base font-semibold text-slate-700 px-2">Options de jeu</legend>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                    
+                    <div class="w-full"><label for="source-column-select" class="block text-sm font-medium text-gray-700 mb-1">Colonne source</label><select id="source-column-select" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-700"><option value="1">Colonne 1</option><option value="2">Colonne 2</option><option value="3">Colonne 3</option><option value="4">Colonne 4</option><option value="5">Colonne 5</option></select></div>
+                    <div class="w-full"><label for="target-column-select" class="block text-sm font-medium text-gray-700 mb-1">Colonne cible</label><select id="target-column-select" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-700"><option value="2">Colonne 2</option><option value="1">Colonne 1</option><option value="3">Colonne 3</option><option value="4">Colonne 4</option><option value="5">Colonne 5</option></select></div>
+                    
+                    <div class="flex items-center space-x-2"><input type="checkbox" id="in-order-checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"><label for="in-order-checkbox" class="text-gray-700">Lire dans l'ordre</label></div>
+                    <div class="flex items-center space-x-2"><input type="checkbox" id="show-other-cols-checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"><label for="show-other-cols-checkbox" class="text-gray-700">Afficher les autres données</label></div>
+                    
+                    <div class="flex items-center gap-2">
+                        <label for="num-source-words-select" class="text-gray-700">Mots source à afficher:</label>
+                        <select id="num-source-words-select" class="w-20 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-700">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="word-limit" class="text-gray-700">Limiter le nombre de mots:</label>
+                        <input type="number" id="word-limit" class="w-40 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-700" placeholder="Par défaut : tous les mots">
+                    </div>
+                </div>
+            </fieldset>
+            
+            <button id="start-button" class="mt-6 px-8 py-3 bg-indigo-600 text-white font-semibold rounded-full shadow-lg hover:bg-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Lancer le jeu</button>
         </div>
 
         <div id="game-screen" class="hidden w-full">
-            <div class="flex justify-between items-center mb-6 w-full"><button id="return-button" class="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-full shadow-sm hover:bg-red-600 transition duration-300">Retour au menu</button><div class="text-sm font-medium text-gray-500" id="progress-display"></div><div class="flex items-baseline gap-2"><h2 id="chronometer-label" class="text-sm font-medium text-gray-500">Chronomètre</h2><div id="timer-display" class="text-sm font-bold text-gray-900 tabular-nums">0.000s</div></div></div>
-            <div id="word-display" class="min-h-[250px] flex flex-col items-center justify-center"><p class="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-800 break-words max-w-full leading-tight">Mot</p></div>
-            <div id="flashcard-reveal" class="invisible text-xl my-4 text-gray-600 italic min-h-[56px]"><span id="target-word-display" class="font-bold preserve-lines"></span><div id="other-cols-display" class="hidden text-sm mt-2 text-gray-500"></div></div>
-            <div class="mt-2 w-full flex flex-col items-center"><div class="flex justify-center items-center gap-4"><button id="show-word-button" class="hidden mb-4 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-green-700 transition duration-300 transform hover:scale-105">Voir le mot</button><button id="next-word-button" class="mb-4 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105">Mot suivant →</button></div><input type="text" id="typing-input" class="hidden w-full max-w-md p-3 text-center border-2 border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200" placeholder="Tapez la réponse ici"><div id="multiple-choice-container" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg mt-4"></div><div id="game-instruction" class="text-gray-500 text-sm mt-4">Utilisez la flèche droite (→) pour passer au mot suivant.</div></div>
+            <div class="flex justify-between items-center mb-6 w-full">
+                <button id="return-button" class="px-4 py-2 bg-slate-500 text-white text-sm font-medium rounded-full shadow-sm hover:bg-slate-600 transition duration-300">Retour au menu</button>
+             
+                <div class="text-sm font-medium text-gray-500" id="progress-display"></div>
+                <div class="flex items-baseline gap-2">
+                    <h2 id="chronometer-label" class="text-sm font-medium text-gray-500">Chronomètre</h2>
+                    <div id="timer-display" class="text-sm font-bold text-gray-900 tabular-nums">0.000s</div>
+                </div>
+         
+            </div>
+            
+            <div id="word-display" class="min-h-[250px] flex flex-wrap items-center justify-center gap-4 p-4">
+                </div>
+            
+            <div id="flashcard-reveal" class="invisible text-xl my-4 text-gray-600 italic min-h-[56px]">
+                <span id="target-word-display" class="font-bold preserve-lines"></span>
+                <div id="other-cols-display" class="hidden text-sm mt-2 text-gray-500"></div>
+            </div>
+            
+            <div class="mt-2 w-full flex flex-col items-center">
+                <div class="flex justify-center items-center gap-4">
+                    <button id="show-word-button" class="hidden mb-4 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-emerald-700 transition duration-300 transform hover:scale-105">Voir le mot</button>
+                    <button id="next-word-button" class="mb-4 px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-indigo-700 transition duration-300 transform hover:scale-105">Mot suivant →</button>
+                </div>
+       
+                <input type="text" id="typing-input" class="hidden w-full max-w-md p-3 text-center border-2 border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200" placeholder="Tapez la réponse ici">
+                <div id="multiple-choice-container" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg mt-4"></div>
+                <div id="game-instruction" class="text-gray-500 text-sm mt-4">Utilisez la flèche droite (→) pour passer au mot suivant.</div>
+            </div>
+      
         </div>
         
         <div id="end-screen" class="hidden w-full">
-            <h2 class="text-3xl font-bold mb-4 text-gray-800">Jeu terminé !</h2>
+            <h2 class="text-3xl font-bold mb-4 text-slate-800">Jeu terminé !</h2>
             <div id="review-all-summary" class="hidden text-lg mb-4"></div>
-            <div class="mb-6"><span class="text-gray-600 text-lg">Votre temps total : </span><span id="final-time-display" class="text-4xl font-extrabold text-blue-600 tabular-nums">0.000s</span></div>
-            <div id="history-container" class="mt-8 overflow-x-auto w-full"><h3 id="history-title" class="text-xl font-semibold mb-4 text-gray-800">Historique des mots et temps</h3><table class="min-w-full bg-white rounded-lg shadow"><thead class="bg-gray-200"><tr><th id="history-col-source" class="py-2 px-4 text-center font-medium text-gray-600">Source</th><th id="history-col-target" class="py-2 px-4 text-center font-medium text-gray-600">Cible</th><th class="py-2 px-4 text-center font-medium text-gray-600">Autres</th><th class="py-2 px-4 text-center font-medium text-gray-600">Temps</th></tr></thead><tbody id="history-table-body" class="divide-y divide-gray-200"></tbody></table></div>
-            <div id="replay-options" class="flex items-center justify-center gap-2 mt-4"><label for="replay-longest-count">Revoir les</label><input type="number" id="replay-longest-count" min="1" class="w-20 p-1 border border-gray-300 rounded-md text-center" placeholder="10"><label for="replay-longest-count">mots les plus longs.</label></div>
-            <div class="flex flex-col md:flex-row gap-4 mt-8"><button id="replay-button" class="px-6 py-3 bg-green-600 text-white font-semibold rounded-full shadow-lg hover:bg-green-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">Rejouer</button><button id="reset-button" class="px-6 py-3 bg-gray-600 text-white font-semibold rounded-full shadow-lg hover:bg-gray-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">Recommencer</button></div>
+            <div class="mb-6"><span class="text-gray-600 text-lg">Votre temps total : </span><span id="final-time-display" class="text-4xl font-extrabold text-indigo-600 tabular-nums">0.000s</span></div>
+          
+            <div id="history-container" class="mt-8 overflow-x-auto w-full">
+                <h3 id="history-title" class="text-xl font-semibold mb-4 text-slate-800">Historique des mots et temps</h3>
+                <table class="min-w-full bg-white rounded-lg shadow">
+                    <thead class="bg-slate-100">
+                        <tr>
+    
+                            <th id="history-col-source" class="py-2 px-4 text-center font-medium text-slate-600">Source</th>
+                            <th id="history-col-target" class="py-2 px-4 text-center font-medium text-slate-600">Cible</th>
+                            <th class="py-2 px-4 text-center font-medium text-slate-600">Autres</th>
+   
+                            <th class="py-2 px-4 text-center font-medium text-slate-600">Temps</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body" class="divide-y divide-slate-200"></tbody>
+   
+                </table>
+            </div>
+            <div id="replay-options" class="flex items-center justify-center gap-2 mt-4">
+                <label for="replay-longest-count">Revoir les</label>
+                <input type="number" id="replay-longest-count" min="1" class="w-20 p-1 border border-gray-300 rounded-md text-center" placeholder="10">
+             
+                <label for="replay-longest-count">mots les plus longs.</label>
+            </div>
+            <div class="flex flex-col md:flex-row gap-4 mt-8">
+                <button id="replay-button" class="px-6 py-3 bg-emerald-600 text-white font-semibold rounded-full shadow-lg hover:bg-emerald-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">Rejouer</button>
+                <button id="reset-button" class="px-6 py-3 bg-slate-600 text-white font-semibold rounded-full shadow-lg hover:bg-slate-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2">Recommencer</button>
+            </div>
         </div>
 
     </div>
@@ -204,7 +292,7 @@
         const wordLimitInput = document.getElementById('word-limit');
         const startButton = document.getElementById('start-button');
         const timerDisplay = document.getElementById('timer-display');
-        const wordDisplay = document.querySelector('#word-display p');
+        const wordDisplayContainer = document.getElementById('word-display');
         const finalTimeDisplay = document.getElementById('final-time-display');
         const replayButton = document.getElementById('replay-button');
         const resetButton = document.getElementById('reset-button');
@@ -214,12 +302,13 @@
         const alertMessage = document.getElementById('alert-message');
         const alertOkButton = document.getElementById('alert-ok-button');
         const returnButton = document.getElementById('return-button');
-        const typingModeCheckbox = document.getElementById('typing-mode-checkbox');
-        const multipleChoiceCheckbox = document.getElementById('multiple-choice-checkbox');
-        const flashcardModeCheckbox = document.getElementById('flashcard-mode-checkbox');
-        const mixedModeCheckbox = document.getElementById('mixed-mode-checkbox');
-        const multipleChoiceLabel = document.getElementById('multiple-choice-label');
-        const mixedModeLabel = document.getElementById('mixed-mode-label');
+        
+        // --- NOUVEAUX ELEMENTS DOM ---
+        const gameModeSelect = document.getElementById('game-mode-select');
+        const mcOption = document.getElementById('mc-option');
+        const mixedOption = document.getElementById('mixed-option');
+        // --- FIN NOUVEAUX ELEMENTS DOM ---
+
         const sourceColumnSelect = document.getElementById('source-column-select');
         const targetColumnSelect = document.getElementById('target-column-select');
         const progressDisplay = document.getElementById('progress-display');
@@ -247,6 +336,7 @@
         const reviewAllSummary = document.getElementById('review-all-summary');
         const timerModeCheckbox = document.getElementById('timer-mode-checkbox');
         const timerSecondsInput = document.getElementById('timer-seconds');
+        const numSourceWordsSelect = document.getElementById('num-source-words-select'); // NEW
         
         // Game state variables
         let wordData = [];
@@ -258,20 +348,22 @@
         let masterTimer = null;
         let wordTimings = [];
         let wordStartTime = 0;
-        let isTypingMode = false;
-        let isMultipleChoiceMode = false;
-        let isFlashcardMode = false;
-        let isMixedMode = false;
+        
+        // --- VARIABLES D'ETAT MODIFIEES ---
+        let activeGameMode = 'default';
         let isReviewAllMode = false;
         let isTimerMode = false;
+        // --- FIN VARIABLES D'ETAT MODIFIEES ---
+
+        let numSourceWords = 1;
         let wordTimerInterval = null;
-        let audioCtx; // Pour le son
+        let audioCtx;
         let isWordRevealed = false;
         let isError = false;
         let sourceColumn;
         let targetColumn;
         const columnMap = { '1': 'Colonne 1', '2': 'Colonne 2', '3': 'Colonne 3', '4': 'Colonne 4', '5': 'Colonne 5' };
-
+        
         // --- MODAL & ALERT FUNCTIONS ---
         function showCustomAlert(title, message) {
             alertTitle.textContent = title;
@@ -315,10 +407,12 @@
                     const img = document.createElement('img');
                     img.src = event.target.result;
                     img.className = 'w-full h-20 object-cover rounded';
+ 
                     imgContainer.appendChild(img);
                     const name = document.createElement('p');
                     name.textContent = file.name.split('.').slice(0, -1).join('.');
                     name.className = 'text-xs truncate mt-1';
+           
                     imgContainer.appendChild(name);
                     imagePreviewContainer.appendChild(imgContainer);
                 };
@@ -327,6 +421,7 @@
             checkMultipleChoiceAvailability();
         });
 
+        // --- FONCTION MODIFIEE ---
         function checkMultipleChoiceAvailability() {
             let uniqueWords;
             let totalCount = 0;
@@ -345,22 +440,25 @@
             }
             
             const isMCAvailable = uniqueWords.size >= 4;
-            multipleChoiceCheckbox.disabled = !isMCAvailable;
-            multipleChoiceLabel.classList.toggle('text-gray-400', !isMCAvailable);
-            if (!isMCAvailable && multipleChoiceCheckbox.checked) {
-                multipleChoiceCheckbox.checked = false;
+            mcOption.disabled = !isMCAvailable;
+            // mcOption.classList.toggle('text-gray-400', !isMCAvailable); // La classe :disabled gère ça
+            if (!isMCAvailable && gameModeSelect.value === 'mc') {
+                gameModeSelect.value = 'default';
             }
 
             const isMixedAvailable = totalCount >= 10;
-            mixedModeCheckbox.disabled = !isMixedAvailable || !isMCAvailable; // MC must also be possible for the MC part of mixed mode
-            mixedModeLabel.classList.toggle('text-gray-400', !isMixedAvailable || !isMCAvailable);
-            if ((!isMixedAvailable || !isMCAvailable) && mixedModeCheckbox.checked) {
-                mixedModeCheckbox.checked = false;
+            mixedOption.disabled = !isMixedAvailable || !isMCAvailable; // MC must also be possible for the MC part of mixed mode
+            // mixedOption.classList.toggle('text-gray-400', !isMixedAvailable || !isMCAvailable);
+            if ((!isMixedAvailable || !isMCAvailable) && gameModeSelect.value === 'mixed') {
+                gameModeSelect.value = 'default';
             }
+            
+            // Re-run handleModeChange to apply new constraints
+            handleModeChange();
         }
         wordInputAll.addEventListener('input', checkMultipleChoiceAvailability);
         targetColumnSelect.addEventListener('change', checkMultipleChoiceAvailability);
-
+        
         // --- UTILITY FUNCTIONS ---
         function playBeep() {
             if (!audioCtx) {
@@ -399,10 +497,12 @@
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = (e) => {
+      
                         const imageName = file.name.split('.').slice(0, -1).join('.');
                         resolve({ '1': e.target.result, '2': imageName, '3': '', '4': '', '5': '' });
                     };
                     reader.onerror = reject;
+ 
                     reader.readAsDataURL(file);
                 });
             }));
@@ -432,11 +532,13 @@
                         let cleaned = cell.trim();
                         if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
                             cleaned = cleaned.substring(1, cleaned.length - 1);
+      
                         }
                         return cleaned.replace(/""/g, '"');
                     });
 
                     result.push(cleanedColumns);
+                
                     currentLine = '';
                 } else {
                     currentLine += '\n';
@@ -444,12 +546,15 @@
             }
             return result;
         }
-        
+     
+    
         // --- GAME LIFECYCLE ---
+        // --- FONCTION MODIFIEE ---
         async function startGame(wordsToPlay) {
             if (timerModeCheckbox.checked && !audioCtx) {
                 try {
                     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
                 } catch (e) {
                     console.warn('Web Audio API is not supported in this browser.');
                 }
@@ -495,14 +600,13 @@
                  return;
             }
             
-            isTypingMode = typingModeCheckbox.checked;
-            isMultipleChoiceMode = multipleChoiceCheckbox.checked;
-            isFlashcardMode = flashcardModeCheckbox.checked;
-            isMixedMode = mixedModeCheckbox.checked;
+            activeGameMode = gameModeSelect.value;
             isReviewAllMode = reviewAllCheckbox.checked;
             isTimerMode = timerModeCheckbox.checked;
+            numSourceWords = parseInt(numSourceWordsSelect.value) || 1;
 
-            if (isMixedMode) {
+            // Mixed mode is incompatible with numSourceWords > 1 (enforced by handleModeChange)
+            if (activeGameMode === 'mixed') {
                 const indices = Array.from({ length: wordData.length }, (_, i) => i);
                 const shuffledAllIndices = shuffle(indices);
                 
@@ -530,14 +634,13 @@
             flashcardReveal.classList.add('invisible');
             showWordButton.classList.add('hidden');
             nextWordButton.classList.remove('hidden');
-            gameInstruction.classList.toggle('hidden', isMultipleChoiceMode || isMixedMode || isTimerMode);
+            gameInstruction.classList.toggle('hidden', activeGameMode === 'mc' || activeGameMode === 'mixed' || isTimerMode);
             
             currentWordIndex = 0;
             wordTimings = [];
             gameStarted = true;
             startTime = performance.now();
             timerInterval = setInterval(updateTimer, 10);
-
             if (isReviewAllMode) {
                 const duration = parseInt(reviewAllSecondsInput.value);
                 if (isNaN(duration) || duration <= 0) {
@@ -569,6 +672,7 @@
             timerDisplay.textContent = elapsedTime.toFixed(3) + 's';
         }
 
+        // --- FONCTION MODIFIEE ---
         function displayWord() {
             if (gameStarted && (isReviewAllMode || isTimerMode) && currentWordIndex >= shuffledIndices.length) {
                 shuffledIndices = shuffle(shuffledIndices);
@@ -583,20 +687,46 @@
             typingInput.classList.remove('border-red-500', 'bg-red-100', 'border-green-500', 'bg-green-100');
             typingInput.value = '';
             
-            const currentMode = isMixedMode ? shuffledIndices[currentWordIndex].mode : null;
-            const currentIndex = isMixedMode ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
-            const sourceContent = wordData[currentIndex][sourceColumn];
-            
-            const displayElement = document.getElementById('word-display');
-            if (sourceContent.startsWith('data:image')) {
-                displayElement.innerHTML = `<img src="${sourceContent}" class="max-h-60 object-contain mx-auto rounded-lg shadow-md">`;
-            } else {
-                displayElement.innerHTML = `<p class="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-800 break-words max-w-full leading-tight preserve-lines">${sourceContent}</p>`;
+            wordDisplayContainer.innerHTML = ''; // Clear previous words
+
+            for (let i = 0; i < numSourceWords; i++) {
+                const itemIndex = currentWordIndex + i;
+                if (itemIndex >= shuffledIndices.length) break;
+
+                // This handles the case where numSourceWords > 1 (so activeGameMode is not 'mixed')
+                // AND the case where numSourceWords === 1 (so activeGameMode *could* be 'mixed')
+                const dataIndex = activeGameMode === 'mixed' ?
+                    (shuffledIndices[itemIndex] ? shuffledIndices[itemIndex].index : undefined) : shuffledIndices[itemIndex];
+                
+                if (dataIndex === undefined || !wordData[dataIndex]) break; 
+
+                const sourceContent = wordData[dataIndex][sourceColumn];
+                if (sourceContent.startsWith('data:image')) {
+                    const img = document.createElement('img');
+                    img.src = sourceContent;
+                    // Smaller images if multiple
+                    img.className = numSourceWords > 1 ?
+                        'max-h-48 object-contain rounded-lg shadow-md' : 'max-h-60 object-contain rounded-lg shadow-md';
+                    wordDisplayContainer.appendChild(img);
+                } else {
+                    const p = document.createElement('p');
+                    // Adjust text size based on number of words
+                    let textSize = 'text-5xl md:text-6xl lg:text-7xl'; // Default (numSourceWords = 1)
+                    if (numSourceWords === 2) textSize = 'text-4xl md:text-5xl';
+                    else if (numSourceWords === 3) textSize = 'text-3xl md:text-4xl';
+                    else if (numSourceWords >= 4) textSize = 'text-2xl md:text-3xl';
+                    p.className = `${textSize} font-bold text-slate-800 break-words max-w-full leading-tight preserve-lines`;
+                    p.textContent = sourceContent;
+                    wordDisplayContainer.appendChild(p);
+                }
             }
 
             wordStartTime = performance.now();
-            progressDisplay.textContent = `(${currentWordIndex + 1}/${wordData.length})`;
+            progressDisplay.textContent = `(${Math.min(currentWordIndex + 1, wordData.length)} - ${Math.min(currentWordIndex + numSourceWords, wordData.length)} / ${wordData.length})`;
+            
             flashcardReveal.classList.add('invisible');
+            targetWordDisplay.innerHTML = ''; // Clear old reveal
+            otherColsDisplay.innerHTML = ''; // Clear old reveal
             otherColsDisplay.classList.add('hidden');
             multipleChoiceContainer.innerHTML = '';
             
@@ -608,20 +738,11 @@
             document.removeEventListener('keydown', handleKeydown);
             document.removeEventListener('keydown', handleTyping);
             
-            let activeMode;
-            if (isMixedMode) {
-                activeMode = currentMode;
-            } else if (isTypingMode) {
-                activeMode = 'typing';
-            } else if (isMultipleChoiceMode) {
-                activeMode = 'mc';
-            } else if (isFlashcardMode) {
-                activeMode = 'flashcard';
-            } else { // Covers Default, ReviewAll and Timer mode
-                activeMode = 'default';
-            }
+            // This logic is safe because handleModeChange ensures numSourceWords > 1 and interactive modes are mutually exclusive
+            const currentData = shuffledIndices[currentWordIndex];
+            const itemMode = (activeGameMode === 'mixed') ? (currentData ? currentData.mode : 'default') : activeGameMode;
 
-            switch (activeMode) {
+            switch (itemMode) {
                 case 'typing':
                     typingInput.classList.remove('hidden');
                     nextWordButton.innerHTML = 'Valider';
@@ -651,8 +772,10 @@
             }
         }
 
+        // --- FONCTION MODIFIEE ---
         function displayMultipleChoice() {
-            const currentIndex = isMixedMode ?
+            // This function is only called if numSourceWords === 1
+            const currentIndex = activeGameMode === 'mixed' ?
                 shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
             const correctWord = wordData[currentIndex][targetColumn];
             const allPossibleAnswers = wordData.map(item => item[targetColumn]).filter(Boolean);
@@ -666,38 +789,40 @@
                     button.className = 'bg-gray-100 p-2 rounded-lg shadow-md hover:bg-gray-200 transition duration-150 flex items-center justify-center';
                 } else {
                     button.textContent = answer;
-                    button.className = 'bg-gray-200 text-gray-800 p-3 rounded-full font-semibold shadow-md hover:bg-gray-300 transition';
+                    button.className = 'bg-white text-slate-700 p-3 rounded-full font-semibold shadow-md border border-slate-300 hover:bg-slate-50 transition';
                 }
-                
+           
                 button.dataset.answer = answer;
                 button.addEventListener('click', (e) => handleMultipleChoiceClick(e.currentTarget, answer === correctWord, correctWord));
                 multipleChoiceContainer.appendChild(button);
             });
         }
         
+        // --- FONCTION MODIFIEE ---
         function handleMultipleChoiceClick(clickedButton, isCorrect, correctAnswer) {
+            // This function is only called if numSourceWords === 1
             const timeForWord = performance.now() - wordStartTime;
-            const currentIndex = isMixedMode ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
+            const currentIndex = activeGameMode === 'mixed' ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
             
             // Disable all buttons
             const allButtons = multipleChoiceContainer.querySelectorAll('button');
             allButtons.forEach(btn => btn.disabled = true);
 
             if (isCorrect) {
-                clickedButton.classList.remove('bg-gray-200', 'hover:bg-gray-300');
-                clickedButton.classList.add('bg-green-500', 'text-white', 'correct-answer');
+                clickedButton.classList.remove('bg-white', 'border-slate-300', 'hover:bg-slate-50');
+                clickedButton.classList.add('bg-green-500', 'text-white', 'border-green-500', 'correct-answer');
                 wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: false });
                 setTimeout(nextWord, 800);
             } else {
                 isError = true;
-                clickedButton.classList.remove('bg-gray-200', 'hover:bg-gray-300');
-                clickedButton.classList.add('bg-red-500', 'text-white', 'incorrect-answer');
+                clickedButton.classList.remove('bg-white', 'border-slate-300', 'hover:bg-slate-50');
+                clickedButton.classList.add('bg-red-500', 'text-white', 'border-red-500', 'incorrect-answer');
                 
                 // Highlight the correct answer
                 const correctButton = Array.from(allButtons).find(btn => btn.dataset.answer === correctAnswer);
                 if(correctButton) {
-                    correctButton.classList.remove('bg-gray-200', 'hover:bg-gray-300');
-                    correctButton.classList.add('bg-green-500', 'text-white');
+                    correctButton.classList.remove('bg-white', 'border-slate-300', 'hover:bg-slate-50');
+                    correctButton.classList.add('bg-green-500', 'text-white', 'border-green-500');
                 } else { // Fallback if correct answer not on screen for some reason
                     revealWord();
                 }
@@ -709,10 +834,13 @@
             }
         }
 
+        // --- FONCTION MODIFIEE ---
         function checkTypedAnswer() {
-            const currentMode = isMixedMode ?
-                shuffledIndices[currentWordIndex].mode : null;
-            if (!isTypingMode && currentMode !== 'typing') return;
+            // This function is only called if numSourceWords === 1
+            const currentData = shuffledIndices[currentWordIndex];
+            const itemMode = (activeGameMode === 'mixed') ? (currentData ? currentData.mode : 'default') : activeGameMode;
+
+            if (itemMode !== 'typing') return;
             if (isError) {
                 nextWord();
                 return;
@@ -724,8 +852,9 @@
                 return;
             }
             const typedWord = typedWordRaw.toLowerCase();
-            const currentIndex = isMixedMode ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
+            const currentIndex = activeGameMode === 'mixed' ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
             const correctWord = wordData[currentIndex][targetColumn].trim().toLowerCase();
+            
             if (typedWord === correctWord) {
                 isError = false;
                 typingInput.classList.add('border-green-500', 'bg-green-100', 'correct-answer');
@@ -743,51 +872,86 @@
             }
         }
 
+        // --- FONCTION MODIFIEE ---
         function revealWord() {
-            const currentIndex = isMixedMode ?
-                shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
-            const currentWord = wordData[currentIndex];
-            const targetContent = currentWord[targetColumn];
+            targetWordDisplay.innerHTML = '';
+            // Add classes to make targets appear horizontally
+            targetWordDisplay.className = 'flex flex-wrap justify-center items-start gap-4';
+            otherColsDisplay.innerHTML = ''; // Clear it
             
-            if (targetContent.startsWith('data:image')) {
-                targetWordDisplay.innerHTML = `<img src="${targetContent}" class="max-h-24 object-contain mx-auto rounded-lg">`;
-            } else {
-                targetWordDisplay.textContent = targetContent;
-            }
+            for (let i = 0; i < numSourceWords; i++) {
+                const itemIndex = currentWordIndex + i;
+                if (itemIndex >= shuffledIndices.length) break;
+                
+                const currentIndex = activeGameMode === 'mixed' ? (shuffledIndices[itemIndex] ? shuffledIndices[itemIndex].index : undefined) : shuffledIndices[itemIndex];
+                if (currentIndex === undefined || !wordData[currentIndex]) break;
 
-            if (showOtherColsCheckbox.checked && !isMixedMode) {
-                const otherColumns = Object.keys(currentWord).filter(key => key !== sourceColumn && key !== targetColumn && ['1', '2', '3', '4', '5'].includes(key) && currentWord[key]).map(key => currentWord[key]);
-                if (otherColumns.length > 0) {
-                    otherColsDisplay.innerHTML = otherColumns.join(' / ');
-                    otherColsDisplay.classList.remove('hidden');
+                const currentWord = wordData[currentIndex];
+                const targetContent = currentWord[targetColumn];
+                // 1. Add to targetWordDisplay
+                const targetEl = document.createElement('span');
+                // Use span to flow
+                targetEl.className = 'font-bold preserve-lines p-2 bg-slate-100 rounded shadow-sm';
+                if (targetContent.startsWith('data:image')) {
+                    targetEl.innerHTML = `<img src="${targetContent}" class="max-h-24 object-contain mx-auto rounded-lg">`;
+                } else {
+                    targetEl.textContent = targetContent;
+                }
+                targetWordDisplay.appendChild(targetEl);
+                // 2. Add to otherColsDisplay
+                if (showOtherColsCheckbox.checked) {
+                    const otherColumns = Object.keys(currentWord).filter(key => key !== sourceColumn && key !== targetColumn && ['1', '2', '3', '4', '5'].includes(key) && currentWord[key]).map(key => currentWord[key]);
+                    if (otherColumns.length > 0) {
+                        const otherEl = document.createElement('div');
+                        // Add an identifier if showing multiple
+                        const prefix = numSourceWords > 1 ?
+                            `[${i+1}] ` : '';
+                        otherEl.innerHTML = `${prefix}${otherColumns.join(' / ')}`;
+                        otherEl.className = 'text-sm text-gray-500';
+                        otherColsDisplay.appendChild(otherEl);
+                    }
                 }
             }
+            
+            if (otherColsDisplay.hasChildNodes()) {
+                otherColsDisplay.classList.remove('hidden');
+            }
+
             flashcardReveal.classList.remove('invisible');
             isWordRevealed = true;
         }
 
+        // --- FONCTION MODIFIEE ---
         function nextWord() {
-            const currentMode = isMixedMode ?
-                shuffledIndices[currentWordIndex].mode : null;
-            const currentIndex = isMixedMode ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
-
-            // For non-interactive modes, record time here
-            if (!isTypingMode && !isMultipleChoiceMode && !isMixedMode) {
-                 const timeForWord = performance.now() - wordStartTime;
-                 wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: isError });
+            const currentData = shuffledIndices[currentWordIndex];
+            const itemMode = (activeGameMode === 'mixed') ? (currentData ? currentData.mode : 'default') : activeGameMode;
+            
+            // For non-interactive (default/flashcard) or flashcard in mixed mode
+            if (itemMode === 'default' || itemMode === 'flashcard') {
+                 const timeForGroup = performance.now() - wordStartTime;
+                 const timePerWord = numSourceWords > 0 ? timeForGroup / numSourceWords : timeForGroup;
+                 for (let i = 0; i < numSourceWords; i++) {
+                    const itemIndex = currentWordIndex + i;
+                    if (itemIndex >= shuffledIndices.length) break;
+                    
+                    const currentIndex = (activeGameMode === 'mixed') ? 
+                        (shuffledIndices[itemIndex] ? shuffledIndices[itemIndex].index : undefined) : 
+                        shuffledIndices[itemIndex];
+                        
+                    if (currentIndex === undefined) break;
+                    wordTimings.push({ ...wordData[currentIndex], time: timePerWord, isError: isError });
+                 }
             } 
-            // For flashcard in mixed mode
-            else if (isMixedMode && currentMode === 'flashcard') {
-                const timeForWord = performance.now() - wordStartTime;
-                wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: isError });
-            }
-            // For typing mode (mixed or not) on success
-            else if ((isTypingMode || (isMixedMode && currentMode === 'typing')) && !isError) {
+            // For typing mode (mixed or not) on success (numSourceWords must be 1)
+            else if (itemMode === 'typing' && !isError) {
+                const currentIndex = activeGameMode === 'mixed' ?
+                    shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
                 const timeForWord = performance.now() - wordStartTime;
                 wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: false });
             }
+            // For MC mode, timing is recorded in handleMultipleChoiceClick
             
-            currentWordIndex++;
+            currentWordIndex += numSourceWords;
             if ((isReviewAllMode || isTimerMode)) {
                 displayWord();
             } else if (currentWordIndex < shuffledIndices.length) {
@@ -797,6 +961,7 @@
             }
         }
 
+        // --- FONCTION MODIFIEE ---
         function endGame() {
             gameStarted = false;
             clearInterval(timerInterval);
@@ -813,7 +978,7 @@
             replayOptionsDiv.classList.add('hidden');
             reviewAllSummary.classList.add('hidden');
 
-            if (isMultipleChoiceMode || isMixedMode || isTypingMode) {
+            if (activeGameMode === 'mc' || activeGameMode === 'mixed' || activeGameMode === 'typing') {
                 const errorWords = wordTimings.filter(item => item.isError);
                 if (errorWords.length > 0) {
                     historyTitle.textContent = "Mots avec erreur";
@@ -837,10 +1002,16 @@
                         const key = item['1'] + '||' + item['2'];
                         if (!aggregatedTimes.has(key)) {
                             aggregatedTimes.set(key, { ...item, time: 0, count: 0 });
+      
                         }
                         const entry = aggregatedTimes.get(key);
                         entry.time += item.time;
                         entry.count += 1;
+   
+                    });
+                    // Calculate average time
+                    aggregatedTimes.forEach(entry => {
+                        entry.time = entry.count > 0 ? entry.time / entry.count : 0;
                     });
                     wordTimings = Array.from(aggregatedTimes.values());
                     reviewAllSummary.textContent = `Nombre de mots vus : ${wordTimings.reduce((acc, item) => acc + item.count, 0)}`;
@@ -848,7 +1019,7 @@
                 }
 
                 wordTimings.sort((a, b) => b.isError - a.isError || b.time - a.time);
-                historyTitle.textContent = (isReviewAllMode || isTimerMode) ? "Mots affichés le plus longtemps" : "Historique des mots et temps";
+                historyTitle.textContent = (isReviewAllMode || isTimerMode) ? "Mots affichés (temps moyen)" : "Historique des mots et temps";
                 populateHistoryTable(wordTimings);
                 const hasErrors = wordTimings.some(item => item.isError);
                 const hasWords = wordTimings.length > 0;
@@ -876,14 +1047,16 @@
                     targetContent.startsWith('data:image') ? `<td class="py-2 px-4 flex justify-center"><img src="${targetContent}" class="h-12 w-12 object-cover rounded-md"></td>` : `<td class="py-2 px-4 whitespace-nowrap">${targetContent}</td>`;
                 
                 const otherColumns = Object.keys(item).filter(key => key !== sourceColumn && key !== targetColumn && ['1', '2', '3', '4', '5'].includes(key) && item[key]).map(key => item[key]);
+           
                 const row = document.createElement('tr');
                 if (item.isError) row.classList.add('error-row');
-                row.className += ' hover:bg-gray-50 transition duration-150 text-center';
+                row.className += ' hover:bg-slate-50 transition duration-150 text-center';
                 row.innerHTML = `${sourceCell}${targetCell}<td class="py-2 px-4 whitespace-nowrap">${otherColumns.join(', ') || '-'}</td><td class="py-2 px-4 whitespace-nowrap">${(item.time / 1000).toFixed(3)}s</td>`;
                 historyTableBody.appendChild(row);
             });
         }
         
+        // --- FONCTION MODIFIEE ---
         function returnToSetup() {
             if (gameStarted) {
                 gameStarted = false;
@@ -899,28 +1072,36 @@
             chronometerLabel.classList.remove('hidden');
             timerDisplay.textContent = '0.000s';
             
-            // Uncheck all checkboxes
-            typingModeCheckbox.checked = false;
-            multipleChoiceCheckbox.checked = false;
-            flashcardModeCheckbox.checked = false;
-            mixedModeCheckbox.checked = false;
+            // --- RESET DES CHECKBOX ---
             reviewAllCheckbox.checked = false;
             timerModeCheckbox.checked = false;
             inOrderCheckbox.checked = false;
             showOtherColsCheckbox.checked = false;
             
+            // --- NOUVEAUX RESETS ---
+            gameModeSelect.value = 'default';
+            numSourceWordsSelect.value = '1';
+            wordLimitInput.value = ''; // Reset word limit
+            reviewAllSecondsInput.value = ''; // Reset review time
+            timerSecondsInput.value = ''; // Reset timer time
+            sourceColumnSelect.value = '1'; // Reset source to Col 1
+            targetColumnSelect.value = '2'; // Reset target to Col 2
+            // --- FIN NOUVEAUX RESETS ---
+            
             // Call handleModeChange to reset the UI to a clean state
-            handleModeChange();
+            checkMultipleChoiceAvailability(); // This will call handleModeChange
         }
 
-        /** MODIFIED FUNCTION **/
+        // --- FONCTION MODIFIEE ---
         function triggerNextAction() {
             if (!gameStarted || isTimerMode) return;
-
-            const currentMode = isMixedMode ? shuffledIndices[currentWordIndex].mode : null;
-            const isEffectiveMC = isMultipleChoiceMode || (isMixedMode && currentMode === 'mc');
-            const isEffectiveTyping = isTypingMode || (isMixedMode && currentMode === 'typing');
-            const isEffectiveFlashcard = isFlashcardMode || (isMixedMode && currentMode === 'flashcard');
+            
+            const currentData = shuffledIndices[currentWordIndex];
+            const itemMode = (activeGameMode === 'mixed') ? (currentData ? currentData.mode : 'default') : activeGameMode;
+            
+            const isEffectiveMC = (itemMode === 'mc');
+            const isEffectiveTyping = (itemMode === 'typing');
+            const isEffectiveFlashcard = (itemMode === 'flashcard');
 
             // Handle multiple choice actions
             if (isEffectiveMC) {
@@ -937,6 +1118,7 @@
             }
             
             // Handle classic flashcard behavior (reveal then next)
+            // This now works with multiple words
             if (isEffectiveFlashcard) {
                 if (isWordRevealed) {
                     nextWord();
@@ -949,6 +1131,7 @@
             // For all other cases (Default mode, or Review All mode running by itself),
             // the "next" action is to simply move to the next word.
             // Revealing the word is handled exclusively by the "Voir le mot" button.
+            // This also works with multiple words
             nextWord();
         }
 
@@ -968,6 +1151,8 @@
                 wordsToReplay = wordTimings.filter(word => word.isError);
             } else {
                 const count = parseInt(replayLongestCountInput.value) || 10;
+                // Sort by time (descending) before slicing
+                wordTimings.sort((a, b) => b.time - a.time);
                 wordsToReplay = wordTimings.slice(0, count);
             }
 
@@ -986,60 +1171,77 @@
         nextWordButton.addEventListener('click', triggerNextAction);
         showWordButton.addEventListener('click', revealWord);
         
-        const mainModes = [typingModeCheckbox, multipleChoiceCheckbox, flashcardModeCheckbox, mixedModeCheckbox];
-        mainModes.forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    mainModes.forEach(other => { if (other !== e.target) other.checked = false; });
-                }
-                handleModeChange();
-            });
-        });
-
+        // --- NOUVEAUX ECOUTEURS D'EVENEMENTS ---
+        gameModeSelect.addEventListener('change', handleModeChange);
         reviewAllCheckbox.addEventListener('change', handleModeChange);
         timerModeCheckbox.addEventListener('change', handleModeChange);
+        numSourceWordsSelect.addEventListener('change', handleModeChange); // NEW LISTENER
+        // --- FIN NOUVEAUX ECOUTEURS ---
+
         
+        // MODIFIED FUNCTION
+        // --- FONCTION MODIFIEE (BUG FIX) ---
         function handleModeChange() {
-            // Get current state of all checkboxes
-            const isTyping = typingModeCheckbox.checked;
-            const isMC = multipleChoiceCheckbox.checked;
-            const isFlash = flashcardModeCheckbox.checked;
-            const isMixed = mixedModeCheckbox.checked;
+            // 1. Get current state of all controls
+            const selectedMode = gameModeSelect.value;
             const isReview = reviewAllCheckbox.checked;
             const isTimer = timerModeCheckbox.checked;
+            const numWords = parseInt(numSourceWordsSelect.value) || 1;
 
-            // --- Reset all disabled states to their base availability ---
-            checkMultipleChoiceAvailability(); // This sets the baseline for MC and Mixed
-            typingModeCheckbox.disabled = false;
-            flashcardModeCheckbox.disabled = false;
+            // 2. Get base availability (must read the .disabled property)
+            const isBaseMCAvailable = !mcOption.disabled;
+            const isBaseMixedAvailable = !mixedOption.disabled;
+
+            // 3. Reset all controls to enabled (base state)
+            gameModeSelect.disabled = false;
             reviewAllCheckbox.disabled = false;
             timerModeCheckbox.disabled = false;
-            // Keep its base disabled state for mixedModeCheckbox
+            numSourceWordsSelect.disabled = false;
+            
+            // Re-enable options that might have been disabled by cross-rules
+            Array.from(gameModeSelect.options).forEach(opt => {
+                if (['default', 'typing', 'flashcard'].includes(opt.value)) {
+                    opt.disabled = false;
+                }
+            });
+            // Re-apply base availability
+            mcOption.disabled = !isBaseMCAvailable;
+            mixedOption.disabled = !isBaseMixedAvailable;
 
-            // --- Apply disabling rules based on the currently selected mode (by priority) ---
+            // 4. Apply disabling rules based on selections
+            if (numWords > 1) {
+                // Désactiver Saisie, MC, Mixte
+                Array.from(gameModeSelect.options).forEach(opt => {
+                    if (['typing', 'mc', 'mixed'].includes(opt.value)) {
+                        opt.disabled = true;
+                    }
+                });
+                // If one was selected, reset to default
+                if (['typing', 'mc', 'mixed'].includes(gameModeSelect.value)) {
+                    gameModeSelect.value = 'default';
+                }
+            }
+            
             if (isTimer) {
                 // Timer is active -> disable incompatible modes.
-                typingModeCheckbox.disabled = true;
-                multipleChoiceCheckbox.disabled = true;
-                flashcardModeCheckbox.disabled = true;
-                mixedModeCheckbox.disabled = true;
+                gameModeSelect.disabled = true; // Désactive tout le menu déroulant
+                numSourceWordsSelect.disabled = true; // Timer locks numWords
             } else if (isReview) {
                 // Review is active -> disable Saisie, MC, and Mixte.
-                typingModeCheckbox.disabled = true;
-                multipleChoiceCheckbox.disabled = true;
-                mixedModeCheckbox.disabled = true;
-            } else if (isMixed) {
-                // Mixed is active -> disable other specific modes, plus Review and Timer
-                typingModeCheckbox.disabled = true;
-                multipleChoiceCheckbox.disabled = true;
-                flashcardModeCheckbox.disabled = true;
+                Array.from(gameModeSelect.options).forEach(opt => {
+                    if (['typing', 'mc', 'mixed'].includes(opt.value)) {
+                        opt.disabled = true;
+                    }
+                });
+                if (['typing', 'mc', 'mixed'].includes(gameModeSelect.value)) {
+                    gameModeSelect.value = 'default';
+                }
+                numSourceWordsSelect.disabled = true; // Review locks numWords
+            } else if (gameModeSelect.value !== 'default') {
+                // Any other specific interactive mode is active -> disable Review, and Timer
                 reviewAllCheckbox.disabled = true;
                 timerModeCheckbox.disabled = true;
-            } else if (isTyping || isMC || isFlash) {
-                // Any other specific interactive mode is active -> disable Mixte, Review, and Timer
-                mixedModeCheckbox.disabled = true;
-                reviewAllCheckbox.disabled = true;
-                timerModeCheckbox.disabled = true;
+                numSourceWordsSelect.disabled = true; // Interactive modes require 1 word
             }
 
             // --- Final state for associated inputs ---
@@ -1049,7 +1251,6 @@
         
         window.addEventListener('load', () => {
             checkMultipleChoiceAvailability();
-            handleModeChange();
         });
     </script>
 </body>
