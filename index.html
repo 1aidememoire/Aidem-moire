@@ -303,11 +303,10 @@
         const alertOkButton = document.getElementById('alert-ok-button');
         const returnButton = document.getElementById('return-button');
         
-        // --- NOUVEAUX ELEMENTS DOM ---
+        // --- ELEMENTS DOM ---
         const gameModeSelect = document.getElementById('game-mode-select');
         const mcOption = document.getElementById('mc-option');
         const mixedOption = document.getElementById('mixed-option');
-        // --- FIN NOUVEAUX ELEMENTS DOM ---
 
         const sourceColumnSelect = document.getElementById('source-column-select');
         const targetColumnSelect = document.getElementById('target-column-select');
@@ -336,7 +335,7 @@
         const reviewAllSummary = document.getElementById('review-all-summary');
         const timerModeCheckbox = document.getElementById('timer-mode-checkbox');
         const timerSecondsInput = document.getElementById('timer-seconds');
-        const numSourceWordsSelect = document.getElementById('num-source-words-select'); // NEW
+        const numSourceWordsSelect = document.getElementById('num-source-words-select');
         
         // Game state variables
         let wordData = [];
@@ -349,11 +348,9 @@
         let wordTimings = [];
         let wordStartTime = 0;
         
-        // --- VARIABLES D'ETAT MODIFIEES ---
         let activeGameMode = 'default';
         let isReviewAllMode = false;
         let isTimerMode = false;
-        // --- FIN VARIABLES D'ETAT MODIFIEES ---
 
         let numSourceWords = 1;
         let wordTimerInterval = null;
@@ -421,7 +418,6 @@
             checkMultipleChoiceAvailability();
         });
 
-        // --- FONCTION MODIFIEE ---
         function checkMultipleChoiceAvailability() {
             let uniqueWords;
             let totalCount = 0;
@@ -441,19 +437,16 @@
             
             const isMCAvailable = uniqueWords.size >= 4;
             mcOption.disabled = !isMCAvailable;
-            // mcOption.classList.toggle('text-gray-400', !isMCAvailable); // La classe :disabled gère ça
             if (!isMCAvailable && gameModeSelect.value === 'mc') {
                 gameModeSelect.value = 'default';
             }
 
             const isMixedAvailable = totalCount >= 10;
-            mixedOption.disabled = !isMixedAvailable || !isMCAvailable; // MC must also be possible for the MC part of mixed mode
-            // mixedOption.classList.toggle('text-gray-400', !isMixedAvailable || !isMCAvailable);
+            mixedOption.disabled = !isMixedAvailable || !isMCAvailable;
             if ((!isMixedAvailable || !isMCAvailable) && gameModeSelect.value === 'mixed') {
                 gameModeSelect.value = 'default';
             }
             
-            // Re-run handleModeChange to apply new constraints
             handleModeChange();
         }
         wordInputAll.addEventListener('input', checkMultipleChoiceAvailability);
@@ -549,7 +542,6 @@
      
     
         // --- GAME LIFECYCLE ---
-        // --- FONCTION MODIFIEE ---
         async function startGame(wordsToPlay) {
             if (timerModeCheckbox.checked && !audioCtx) {
                 try {
@@ -605,7 +597,6 @@
             isTimerMode = timerModeCheckbox.checked;
             numSourceWords = parseInt(numSourceWordsSelect.value) || 1;
 
-            // Mixed mode is incompatible with numSourceWords > 1 (enforced by handleModeChange)
             if (activeGameMode === 'mixed') {
                 const indices = Array.from({ length: wordData.length }, (_, i) => i);
                 const shuffledAllIndices = shuffle(indices);
@@ -621,7 +612,9 @@
                 shuffledIndices = shuffle([...mcIndices, ...flashcardIndices, ...typingIndices]);
             } else {
                 const indices = Array.from({ length: wordData.length }, (_, i) => i);
-                shuffledIndices = inOrderCheckbox.checked && !isReviewAllMode && !isTimerMode ? indices : shuffle(indices);
+                // CORRECTION : Le Timer ne force plus le mélange, seul "Tout revoir en aléatoire" le fait.
+                // Si "Tout revoir" est coché, l'utilisateur s'attend à de l'aléatoire (d'après le libellé).
+                shuffledIndices = (inOrderCheckbox.checked && !isReviewAllMode) ? indices : shuffle(indices);
             }
             
             setupScreen.classList.add('hidden');
@@ -672,7 +665,6 @@
             timerDisplay.textContent = elapsedTime.toFixed(3) + 's';
         }
 
-        // --- FONCTION MODIFIEE ---
         function displayWord() {
             if (gameStarted && (isReviewAllMode || isTimerMode) && currentWordIndex >= shuffledIndices.length) {
                 shuffledIndices = shuffle(shuffledIndices);
@@ -687,14 +679,12 @@
             typingInput.classList.remove('border-red-500', 'bg-red-100', 'border-green-500', 'bg-green-100');
             typingInput.value = '';
             
-            wordDisplayContainer.innerHTML = ''; // Clear previous words
+            wordDisplayContainer.innerHTML = '';
 
             for (let i = 0; i < numSourceWords; i++) {
                 const itemIndex = currentWordIndex + i;
                 if (itemIndex >= shuffledIndices.length) break;
 
-                // This handles the case where numSourceWords > 1 (so activeGameMode is not 'mixed')
-                // AND the case where numSourceWords === 1 (so activeGameMode *could* be 'mixed')
                 const dataIndex = activeGameMode === 'mixed' ?
                     (shuffledIndices[itemIndex] ? shuffledIndices[itemIndex].index : undefined) : shuffledIndices[itemIndex];
                 
@@ -704,14 +694,12 @@
                 if (sourceContent.startsWith('data:image')) {
                     const img = document.createElement('img');
                     img.src = sourceContent;
-                    // Smaller images if multiple
                     img.className = numSourceWords > 1 ?
                         'max-h-48 object-contain rounded-lg shadow-md' : 'max-h-60 object-contain rounded-lg shadow-md';
                     wordDisplayContainer.appendChild(img);
                 } else {
                     const p = document.createElement('p');
-                    // Adjust text size based on number of words
-                    let textSize = 'text-5xl md:text-6xl lg:text-7xl'; // Default (numSourceWords = 1)
+                    let textSize = 'text-5xl md:text-6xl lg:text-7xl';
                     if (numSourceWords === 2) textSize = 'text-4xl md:text-5xl';
                     else if (numSourceWords === 3) textSize = 'text-3xl md:text-4xl';
                     else if (numSourceWords >= 4) textSize = 'text-2xl md:text-3xl';
@@ -725,8 +713,8 @@
             progressDisplay.textContent = `(${Math.min(currentWordIndex + 1, wordData.length)} - ${Math.min(currentWordIndex + numSourceWords, wordData.length)} / ${wordData.length})`;
             
             flashcardReveal.classList.add('invisible');
-            targetWordDisplay.innerHTML = ''; // Clear old reveal
-            otherColsDisplay.innerHTML = ''; // Clear old reveal
+            targetWordDisplay.innerHTML = '';
+            otherColsDisplay.innerHTML = '';
             otherColsDisplay.classList.add('hidden');
             multipleChoiceContainer.innerHTML = '';
             
@@ -738,7 +726,6 @@
             document.removeEventListener('keydown', handleKeydown);
             document.removeEventListener('keydown', handleTyping);
             
-            // This logic is safe because handleModeChange ensures numSourceWords > 1 and interactive modes are mutually exclusive
             const currentData = shuffledIndices[currentWordIndex];
             const itemMode = (activeGameMode === 'mixed') ? (currentData ? currentData.mode : 'default') : activeGameMode;
 
@@ -772,9 +759,7 @@
             }
         }
 
-        // --- FONCTION MODIFIEE ---
         function displayMultipleChoice() {
-            // This function is only called if numSourceWords === 1
             const currentIndex = activeGameMode === 'mixed' ?
                 shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
             const correctWord = wordData[currentIndex][targetColumn];
@@ -798,13 +783,10 @@
             });
         }
         
-        // --- FONCTION MODIFIEE ---
         function handleMultipleChoiceClick(clickedButton, isCorrect, correctAnswer) {
-            // This function is only called if numSourceWords === 1
             const timeForWord = performance.now() - wordStartTime;
             const currentIndex = activeGameMode === 'mixed' ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
             
-            // Disable all buttons
             const allButtons = multipleChoiceContainer.querySelectorAll('button');
             allButtons.forEach(btn => btn.disabled = true);
 
@@ -818,12 +800,11 @@
                 clickedButton.classList.remove('bg-white', 'border-slate-300', 'hover:bg-slate-50');
                 clickedButton.classList.add('bg-red-500', 'text-white', 'border-red-500', 'incorrect-answer');
                 
-                // Highlight the correct answer
                 const correctButton = Array.from(allButtons).find(btn => btn.dataset.answer === correctAnswer);
                 if(correctButton) {
                     correctButton.classList.remove('bg-white', 'border-slate-300', 'hover:bg-slate-50');
                     correctButton.classList.add('bg-green-500', 'text-white', 'border-green-500');
-                } else { // Fallback if correct answer not on screen for some reason
+                } else {
                     revealWord();
                 }
 
@@ -834,9 +815,7 @@
             }
         }
 
-        // --- FONCTION MODIFIEE ---
         function checkTypedAnswer() {
-            // This function is only called if numSourceWords === 1
             const currentData = shuffledIndices[currentWordIndex];
             const itemMode = (activeGameMode === 'mixed') ? (currentData ? currentData.mode : 'default') : activeGameMode;
 
@@ -872,12 +851,10 @@
             }
         }
 
-        // --- FONCTION MODIFIEE ---
         function revealWord() {
             targetWordDisplay.innerHTML = '';
-            // Add classes to make targets appear horizontally
             targetWordDisplay.className = 'flex flex-wrap justify-center items-start gap-4';
-            otherColsDisplay.innerHTML = ''; // Clear it
+            otherColsDisplay.innerHTML = '';
             
             for (let i = 0; i < numSourceWords; i++) {
                 const itemIndex = currentWordIndex + i;
@@ -888,9 +865,8 @@
 
                 const currentWord = wordData[currentIndex];
                 const targetContent = currentWord[targetColumn];
-                // 1. Add to targetWordDisplay
+
                 const targetEl = document.createElement('span');
-                // Use span to flow
                 targetEl.className = 'font-bold preserve-lines p-2 bg-slate-100 rounded shadow-sm';
                 if (targetContent.startsWith('data:image')) {
                     targetEl.innerHTML = `<img src="${targetContent}" class="max-h-24 object-contain mx-auto rounded-lg">`;
@@ -898,14 +874,12 @@
                     targetEl.textContent = targetContent;
                 }
                 targetWordDisplay.appendChild(targetEl);
-                // 2. Add to otherColsDisplay
+
                 if (showOtherColsCheckbox.checked) {
                     const otherColumns = Object.keys(currentWord).filter(key => key !== sourceColumn && key !== targetColumn && ['1', '2', '3', '4', '5'].includes(key) && currentWord[key]).map(key => currentWord[key]);
                     if (otherColumns.length > 0) {
                         const otherEl = document.createElement('div');
-                        // Add an identifier if showing multiple
-                        const prefix = numSourceWords > 1 ?
-                            `[${i+1}] ` : '';
+                        const prefix = numSourceWords > 1 ? `[${i+1}] ` : '';
                         otherEl.innerHTML = `${prefix}${otherColumns.join(' / ')}`;
                         otherEl.className = 'text-sm text-gray-500';
                         otherColsDisplay.appendChild(otherEl);
@@ -921,12 +895,10 @@
             isWordRevealed = true;
         }
 
-        // --- FONCTION MODIFIEE ---
         function nextWord() {
             const currentData = shuffledIndices[currentWordIndex];
             const itemMode = (activeGameMode === 'mixed') ? (currentData ? currentData.mode : 'default') : activeGameMode;
             
-            // For non-interactive (default/flashcard) or flashcard in mixed mode
             if (itemMode === 'default' || itemMode === 'flashcard') {
                  const timeForGroup = performance.now() - wordStartTime;
                  const timePerWord = numSourceWords > 0 ? timeForGroup / numSourceWords : timeForGroup;
@@ -942,14 +914,12 @@
                     wordTimings.push({ ...wordData[currentIndex], time: timePerWord, isError: isError });
                  }
             } 
-            // For typing mode (mixed or not) on success (numSourceWords must be 1)
             else if (itemMode === 'typing' && !isError) {
                 const currentIndex = activeGameMode === 'mixed' ?
                     shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
                 const timeForWord = performance.now() - wordStartTime;
                 wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: false });
             }
-            // For MC mode, timing is recorded in handleMultipleChoiceClick
             
             currentWordIndex += numSourceWords;
             if ((isReviewAllMode || isTimerMode)) {
@@ -961,7 +931,6 @@
             }
         }
 
-        // --- FONCTION MODIFIEE ---
         function endGame() {
             gameStarted = false;
             clearInterval(timerInterval);
@@ -999,7 +968,8 @@
                  if ((isReviewAllMode || isTimerMode) && wordTimings.length > 0) {
                     const aggregatedTimes = new Map();
                     wordTimings.forEach(item => {
-                        const key = item['1'] + '||' + item['2'];
+                        // CORRECTION : Clé basée sur Source/Cible sélectionnées et non plus '1' et '2' en dur
+                        const key = item[sourceColumn] + '||' + item[targetColumn];
                         if (!aggregatedTimes.has(key)) {
                             aggregatedTimes.set(key, { ...item, time: 0, count: 0 });
       
@@ -1009,7 +979,7 @@
                         entry.count += 1;
    
                     });
-                    // Calculate average time
+                    
                     aggregatedTimes.forEach(entry => {
                         entry.time = entry.count > 0 ? entry.time / entry.count : 0;
                     });
@@ -1056,7 +1026,6 @@
             });
         }
         
-        // --- FONCTION MODIFIEE ---
         function returnToSetup() {
             if (gameStarted) {
                 gameStarted = false;
@@ -1072,27 +1041,24 @@
             chronometerLabel.classList.remove('hidden');
             timerDisplay.textContent = '0.000s';
             
-            // --- RESET DES CHECKBOX ---
             reviewAllCheckbox.checked = false;
             timerModeCheckbox.checked = false;
             inOrderCheckbox.checked = false;
             showOtherColsCheckbox.checked = false;
             
-            // --- NOUVEAUX RESETS ---
             gameModeSelect.value = 'default';
             numSourceWordsSelect.value = '1';
-            wordLimitInput.value = ''; // Reset word limit
-            reviewAllSecondsInput.value = ''; // Reset review time
-            timerSecondsInput.value = ''; // Reset timer time
-            sourceColumnSelect.value = '1'; // Reset source to Col 1
-            targetColumnSelect.value = '2'; // Reset target to Col 2
-            // --- FIN NOUVEAUX RESETS ---
+            wordLimitInput.value = '';
+            reviewAllSecondsInput.value = '';
+            timerSecondsInput.value = '';
             
-            // Call handleModeChange to reset the UI to a clean state
-            checkMultipleChoiceAvailability(); // This will call handleModeChange
+            // CORRECTION : Suppression de la réinitialisation des colonnes Source/Cible
+            // sourceColumnSelect.value = '1'; 
+            // targetColumnSelect.value = '2'; 
+            
+            checkMultipleChoiceAvailability();
         }
 
-        // --- FONCTION MODIFIEE ---
         function triggerNextAction() {
             if (!gameStarted || isTimerMode) return;
             
@@ -1103,7 +1069,6 @@
             const isEffectiveTyping = (itemMode === 'typing');
             const isEffectiveFlashcard = (itemMode === 'flashcard');
 
-            // Handle multiple choice actions
             if (isEffectiveMC) {
                 if (isError) {
                     nextWord();
@@ -1111,14 +1076,11 @@
                 return;
             }
 
-            // Handle typing actions
             if (isEffectiveTyping) {
                 checkTypedAnswer();
                 return;
             }
             
-            // Handle classic flashcard behavior (reveal then next)
-            // This now works with multiple words
             if (isEffectiveFlashcard) {
                 if (isWordRevealed) {
                     nextWord();
@@ -1128,10 +1090,6 @@
                 return;
             }
 
-            // For all other cases (Default mode, or Review All mode running by itself),
-            // the "next" action is to simply move to the next word.
-            // Revealing the word is handled exclusively by the "Voir le mot" button.
-            // This also works with multiple words
             nextWord();
         }
 
@@ -1151,7 +1109,6 @@
                 wordsToReplay = wordTimings.filter(word => word.isError);
             } else {
                 const count = parseInt(replayLongestCountInput.value) || 10;
-                // Sort by time (descending) before slicing
                 wordTimings.sort((a, b) => b.time - a.time);
                 wordsToReplay = wordTimings.slice(0, count);
             }
@@ -1171,80 +1128,76 @@
         nextWordButton.addEventListener('click', triggerNextAction);
         showWordButton.addEventListener('click', revealWord);
         
-        // --- NOUVEAUX ECOUTEURS D'EVENEMENTS ---
         gameModeSelect.addEventListener('change', handleModeChange);
         reviewAllCheckbox.addEventListener('change', handleModeChange);
         timerModeCheckbox.addEventListener('change', handleModeChange);
-        numSourceWordsSelect.addEventListener('change', handleModeChange); // NEW LISTENER
-        // --- FIN NOUVEAUX ECOUTEURS ---
+        numSourceWordsSelect.addEventListener('change', handleModeChange);
 
-        
-        // MODIFIED FUNCTION
-        // --- FONCTION MODIFIEE (BUG FIX) ---
+        // --- LOGIQUE CORRIGÉE POUR GÉRER LES CONFLITS D'OPTIONS ---
         function handleModeChange() {
-            // 1. Get current state of all controls
             const selectedMode = gameModeSelect.value;
             const isReview = reviewAllCheckbox.checked;
             const isTimer = timerModeCheckbox.checked;
             const numWords = parseInt(numSourceWordsSelect.value) || 1;
+            const isInteractiveMode = ['typing', 'mc', 'mixed'].includes(selectedMode);
 
-            // 2. Get base availability (must read the .disabled property)
+            // 1. État de base : tout activer sauf si contrainte d'availability (géré par checkMultipleChoice)
             const isBaseMCAvailable = !mcOption.disabled;
             const isBaseMixedAvailable = !mixedOption.disabled;
-
-            // 3. Reset all controls to enabled (base state)
+            
+            // On réactive tout temporairement pour appliquer la logique
             gameModeSelect.disabled = false;
             reviewAllCheckbox.disabled = false;
             timerModeCheckbox.disabled = false;
             numSourceWordsSelect.disabled = false;
             
-            // Re-enable options that might have been disabled by cross-rules
-            Array.from(gameModeSelect.options).forEach(opt => {
-                if (['default', 'typing', 'flashcard'].includes(opt.value)) {
-                    opt.disabled = false;
-                }
-            });
-            // Re-apply base availability
+            Array.from(gameModeSelect.options).forEach(opt => opt.disabled = false);
             mcOption.disabled = !isBaseMCAvailable;
             mixedOption.disabled = !isBaseMixedAvailable;
 
-            // 4. Apply disabling rules based on selections
+            // 2. Logique d'exclusion
+            
+            // Si le nombre de mots > 1 : Modes interactifs impossibles
             if (numWords > 1) {
-                // Désactiver Saisie, MC, Mixte
                 Array.from(gameModeSelect.options).forEach(opt => {
                     if (['typing', 'mc', 'mixed'].includes(opt.value)) {
                         opt.disabled = true;
                     }
                 });
-                // If one was selected, reset to default
-                if (['typing', 'mc', 'mixed'].includes(gameModeSelect.value)) {
+                if (isInteractiveMode) {
                     gameModeSelect.value = 'default';
                 }
             }
             
-            if (isTimer) {
-                // Timer is active -> disable incompatible modes.
-                gameModeSelect.disabled = true; // Désactive tout le menu déroulant
-                numSourceWordsSelect.disabled = true; // Timer locks numWords
-            } else if (isReview) {
-                // Review is active -> disable Saisie, MC, and Mixte.
+            // Si Timer ou Tout Revoir actif : Modes interactifs impossibles
+            if (isTimer || isReview) {
                 Array.from(gameModeSelect.options).forEach(opt => {
                     if (['typing', 'mc', 'mixed'].includes(opt.value)) {
                         opt.disabled = true;
                     }
                 });
-                if (['typing', 'mc', 'mixed'].includes(gameModeSelect.value)) {
+                if (isInteractiveMode) {
                     gameModeSelect.value = 'default';
                 }
-                numSourceWordsSelect.disabled = true; // Review locks numWords
-            } else if (gameModeSelect.value !== 'default') {
-                // Any other specific interactive mode is active -> disable Review, and Timer
+                
+                // Si Timer actif, il bloque le mode de jeu complet (seul défaut est possible)
+                if (isTimer) {
+                    gameModeSelect.disabled = true; 
+                    // Note: Timer n'empêche plus numSourceWords > 1
+                }
+            } 
+            // Sinon, si un mode interactif est sélectionné (Saisie, MC, Mixte)
+            else if (isInteractiveMode) {
+                // Bloquer les options temporelles et mots multiples
                 reviewAllCheckbox.disabled = true;
                 timerModeCheckbox.disabled = true;
-                numSourceWordsSelect.disabled = true; // Interactive modes require 1 word
+                numSourceWordsSelect.disabled = true; // Forcer à 1
+                if (numSourceWordsSelect.value !== '1') {
+                    numSourceWordsSelect.value = '1';
+                }
             }
 
-            // --- Final state for associated inputs ---
+            // Gestion des champs input associés
             timerSecondsInput.disabled = !isTimer;
             reviewAllSecondsInput.disabled = !isReview;
         }
