@@ -3,282 +3,470 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jeu de Mots</title>
+    <title>Jeu de Mots - Pro Memory Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { 
             font-family: 'Inter', sans-serif;
+            transition: background-color 0.5s ease, color 0.5s ease;
+            background-color: #f9fafb; /* Soft light gray/white */
+            color: #374151; /* Soft Black */
         }
-        .error-row {
-            color: #ef4444; /* red-500 */
-            background-color: #fee2e2; /* red-100 */
+
+        /* --- SOFT UI UTILS --- */
+        .soft-card {
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
         }
-        /* NOUVEAUX STYLES D'ONGLETS */
-        .tab-button {
-            @apply px-4 py-3 font-semibold rounded-lg w-full text-center transition-colors duration-200;
+
+        .soft-input {
+            border: 1px solid #e5e7eb;
+            background-color: #f9fafb;
+            transition: all 0.3s ease;
         }
-        .tab-button.active {
-            @apply bg-indigo-600 text-white;
+        .soft-input:focus {
+            background-color: #ffffff;
+            border-color: #a5b4fc;
+            box-shadow: 0 0 0 4px rgba(165, 180, 252, 0.2);
+            outline: none;
         }
-        .tab-button.inactive {
-            @apply bg-slate-100 text-slate-700 hover:bg-slate-200;
+
+        /* --- DARK MODE (Soft Charcoal) --- */
+        body.dark-mode { background-color: #18181b; color: #e4e4e7; }
+        body.dark-mode .soft-card { 
+            background-color: #27272a;
+            border-color: #3f3f46;
+            box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.3);
         }
-        input:disabled, input[type="checkbox"]:disabled + label, select:disabled, option:disabled {
-            @apply bg-slate-200 cursor-not-allowed text-slate-400;
+        body.dark-mode .bg-white { background-color: #27272a; color: #e4e4e7; }
+        body.dark-mode .bg-slate-100, body.dark-mode .bg-zinc-50 { background-color: #18181b; color: #a1a1aa; }
+        body.dark-mode .bg-slate-50, body.dark-mode .bg-amber-50 { background-color: #3f3f46; color: #d4d4d8; }
+        body.dark-mode .text-slate-800, body.dark-mode .text-gray-700, body.dark-mode .text-gray-900 { color: #f4f4f5; }
+        
+        /* Correction couleurs inputs Dark Mode */
+        body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
+            background-color: #3f3f46;
+            color: #fff; border-color: #52525b;
         }
-        .correct-answer {
-            transition: all 0.2s ease-in-out;
+        
+        body.dark-mode .tab-button.inactive { background-color: #27272a; color: #71717a; }
+        body.dark-mode .soft-input { background-color: #27272a; border-color: #52525b; color: white; }
+        
+        /* --- GENERAL --- */
+        .tab-button { @apply px-6 py-4 font-semibold rounded-2xl w-full text-center transition-all duration-300; }
+        .tab-button.active { @apply bg-indigo-500 text-white shadow-lg shadow-indigo-200 dark:shadow-none; }
+        .tab-button.inactive { @apply bg-transparent text-gray-500 hover:bg-gray-100; }
+        
+        .preserve-lines { white-space: pre-line; }
+
+        /* --- DRAG & DROP LAYOUT --- */
+        .layout-editor-container {
+            position: relative;
+            width: 100%; height: 400px;
+            border: 2px dashed #e5e7eb; background-color: #f9fafb;
+            border-radius: 16px; overflow: hidden;
         }
-        .incorrect-answer {
-             transition: all 0.2s ease-in-out;
+        body.dark-mode .layout-editor-container { border-color: #52525b; background-color: #18181b; }
+        .game-display-manual { position: relative; width: 100%; height: 400px; border: 1px solid transparent; }
+        .draggable-placeholder {
+            width: 100px;
+            height: 100px; background-color: #818cf8; color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; border-radius: 12px; position: absolute;
+            cursor: move;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            user-select: none; z-index: 50;
         }
-        .preserve-lines {
-            white-space: pre-line;
+        .game-image-manual {
+            position: absolute;
+            max-height: 200px; width: auto; object-fit: contain;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); z-index: 10;
         }
+
+        /* --- ANIMATIONS --- */
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        .combo-pop { animation: pop 0.3s ease-out; }
+        .combo-fire { color: #f59e0b; text-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+        
+        @keyframes pulse-count { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+        .countdown-animate { animation: pulse-count 1s infinite ease-in-out; }
+        
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
+        .floating-element { animation: float 6s ease-in-out infinite; }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex items-center justify-center p-4 selection:bg-indigo-100 selection:text-indigo-900">
 
-    <div id="game-container" class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-5xl text-center flex flex-col items-center">
+    <button id="dark-mode-toggle" class="fixed top-6 right-6 px-4 py-2 rounded-full bg-white/80 dark:bg-zinc-800 text-gray-800 dark:text-white shadow-lg backdrop-blur hover:bg-white transition-all z-50 text-sm font-medium border border-gray-200 dark:border-zinc-700">
+        <span id="dark-mode-icon">🌙 Mode Sombre</span>
+    </button>
 
-        <div id="custom-alert" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
-            <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                <div class="mt-3 text-center">
-    
-                    <h3 id="alert-title" class="text-lg leading-6 font-medium text-gray-900"></h3>
-                    <div class="mt-2 px-7 py-3">
-                        <p id="alert-message" class="text-sm text-gray-500"></p>
-                    </div>
-         
-                   <div class="items-center px-4 py-3">
-                        <button id="alert-ok-button" class="px-4 py-2 bg-indigo-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            OK
-                        </button>
+    <div id="countdown-overlay" class="hidden fixed inset-0 bg-zinc-900 z-[100] flex items-center justify-center flex-col text-white transition-opacity duration-500">
+        <div id="countdown-number" class="text-[12rem] font-black countdown-animate text-indigo-400 opacity-90 leading-none">3</div>
+        <p class="mt-12 text-3xl font-light text-zinc-400 tracking-widest uppercase">Préparez-vous</p>
+    </div>
+
+    <div id="game-container" class="soft-card p-10 rounded-[2rem] w-full max-w-5xl text-center flex flex-col items-center transition-colors duration-500 relative overflow-hidden">
+        
+        <div class="absolute -top-20 -left-20 w-64 h-64 bg-indigo-100 dark:bg-indigo-900/20 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
+        <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-emerald-100 dark:bg-emerald-900/20 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
+
+        <div id="custom-alert" class="hidden fixed inset-0 bg-gray-900/40 backdrop-blur-sm overflow-y-auto h-full w-full z-[60] flex items-center justify-center">
+            <div class="relative mx-auto p-8 border-0 w-96 shadow-2xl rounded-2xl bg-white dark:bg-zinc-800">
+                <div class="mt-2 text-center">
+                    <h3 id="alert-title" class="text-xl leading-6 font-bold text-gray-900 dark:text-white mb-2"></h3>
+                    <div class="mt-2 py-2"><p id="alert-message" class="text-sm text-gray-500 dark:text-gray-300"></p></div>
+                    <div class="items-center px-4 py-3 mt-4">
+                        <button id="alert-ok-button" class="px-6 py-2 bg-indigo-500 text-white text-base font-medium rounded-full w-full shadow-lg shadow-indigo-200 hover:bg-indigo-600 hover:shadow-indigo-300 transition-all">OK</button>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div id="help-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-            <div class="relative mx-auto p-6 border w-full max-w-lg shadow-lg rounded-md bg-white">
+        <div id="layout-editor-modal" class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm overflow-y-auto h-full w-full z-[55] flex items-center justify-center p-4">
+            <div class="relative mx-auto p-8 w-full max-w-4xl shadow-2xl rounded-3xl bg-white dark:bg-zinc-800">
+                <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Configuration de la disposition</h3>
+                <div id="layout-editor-area" class="layout-editor-container"></div>
+                <div class="flex justify-end gap-4 mt-8">
+                    <button id="cancel-layout-btn" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 transition-colors">Annuler</button>
+                    <button id="save-layout-btn" class="px-8 py-2 bg-indigo-600 text-white font-bold rounded-full hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all">Valider</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="help-modal" class="hidden fixed inset-0 bg-gray-900/40 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+            <div class="relative mx-auto p-8 border-0 w-full max-w-2xl shadow-2xl rounded-3xl bg-white dark:bg-zinc-800">
                 <div class="mt-3">
-                    <h3 class="text-xl text-center leading-6 font-bold text-gray-900">Aide sur le fonctionnement du jeu</h3>
-                    <div class="mt-4 px-2 py-3 text-left max-h-[60vh] overflow-y-auto">
-     
-                        <p class="text-sm text-gray-700">
-                            Ce jeu a pour objectif de vous aider à mémoriser les informations que vous souhaitez connaître : capitale, nombre d'habitants par pays, vocabulaire, dates historiques, grammaire...
-                        </p>
-  
-                        <p class="text-sm text-gray-700 mt-2">
-                            Pour l'utiliser, vous devez avoir renseigné un classeur avec au moins 2 colonnes d'informations liées. Par exemple :
-                        </p>
-                        <div class="my-4 border rounded-lg overflow-hidden shadow-sm">
-                            <table class="w-full text-sm text-left text-gray-500">
-             
-                                <thead class="text-xs text-slate-700 uppercase bg-slate-50">
-                                    <tr>
-                                        <th scope="col" class="px-4 py-2">Colonne A</th>
-                                        <th scope="col" class="px-4 py-2">Colonne B</th>
-                                    </tr>
-                 
-                                </thead>
-                                <tbody>
-                                    <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">France</td><td class="px-4 py-2">Paris</td></tr>
-         
-                                    <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Espagne</td><td class="px-4 py-2">Madrid</td></tr>
-                                    <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Allemagne</td><td class="px-4 py-2">Berlin</td></tr>
-                     
-                                    <tr class="bg-white border-b"><td class="px-4 py-2 font-medium text-gray-900">Irlande</td><td class="px-4 py-2">Dublin</td></tr>
-                                    <tr class="bg-white"><td class="px-4 py-2 font-medium text-gray-900">Angleterre</td><td class="px-4 py-2">Londres</td></tr>
-                                </tbody>
-  
-                           </table>
-                        </div>
-                        <p class="text-sm text-gray-700 mt-2">
-                            Copiez ces informations et collez-les dans la case centrale. Ensuite, activez une des options et lancez le jeu.
-                        </p>
+                    <h3 class="text-3xl text-center leading-8 font-bold text-indigo-700 dark:text-indigo-400 mb-8">Guide Complet & Nouveautés</h3>
+                    <div class="mt-4 px-2 py-3 text-left max-h-[60vh] overflow-y-auto space-y-8 text-gray-600 dark:text-gray-300">
                         
-                        <ul class="list-disc list-inside text-sm text-gray-700 mt-2">
-                            <li>Le <b>mode Saisie</b> vous demande de taper l'information recherchée.</li>
-  
-                            <li>Le <b>mode Choix multiples</b> vous présente 4 options et vous demande de cliquer sur la bonne réponse. Pour l'activer, il est nécessaire d'avoir collé au moins 8 cases d'un tableau.</li>
-                            <li>Le <b>mode Flashcards</b> vous présente un mot avant de montrer l'information associée.</li>
-                            <li>Le <b>mode Mixte</b>, qui nécessite au moins 20 cases d'un tableau, présente les mots selon les 3 modes ci-dessus, de façon aléatoire.</li>
-                        </ul>
+                        <section>
+                            <h4 class="font-bold text-lg text-gray-900 dark:text-white border-b border-gray-100 dark:border-zinc-700 pb-2 mb-3">1. Comment importer vos données ?</h4>
+                            <p class="text-sm mb-3 leading-relaxed"><strong>Option A : Texte (Excel/TSV)</strong><br>
+                            Copiez-collez vos données depuis un tableur. Le jeu reconnaît 4 colonnes :</p>
+                            <ul class="list-none text-xs ml-2 space-y-2 bg-gray-50 dark:bg-zinc-700/50 p-4 rounded-xl">
+                                <li><span class="font-bold text-indigo-600 dark:text-indigo-400">Colonne 1 :</span> Le mot source (affiché).</li>
+                                <li><span class="font-bold text-indigo-600 dark:text-indigo-400">Colonne 2 :</span> La réponse attendue.</li>
+                                <li><span class="font-bold text-indigo-600 dark:text-indigo-400">Colonne 3 :</span> (Optionnel) Phrase de contexte.</li>
+                                <li><span class="font-bold text-indigo-600 dark:text-indigo-400">Colonne 4 :</span> (Optionnel) Mnémotechnique (astuce).</li>
+                            </ul>
+                            <p class="text-sm mt-3 leading-relaxed"><strong>Option B : Images</strong><br>
+                            Sélectionnez des fichiers image. Chaque image deviendra une question (Col 1), et le nom du fichier sera la réponse (Col 2).</p>
+                        </section>
 
-                        <p class="text-sm text-gray-700 mt-4">
-                            Vous pouvez également utiliser le mode par défaut en ne cliquant on aucune des options ci-dessus. Ce mode vous montre un mot et vous pouvez ensuite passer au suivant.
-                        </p>
+                        <section>
+                            <h4 class="font-bold text-lg text-gray-900 dark:text-white border-b border-gray-100 dark:border-zinc-700 pb-2 mb-3">2. Modes de Jeu</h4>
+                            <ul class="space-y-3 text-sm">
+                                <li class="flex items-center gap-2"><span class="bg-indigo-100 text-indigo-700 p-1 rounded">🎓</span> <strong>Lecture Simple :</strong> Pour découvrir. Affiche la source, vous révélez la réponse.</li>
+                                <li class="flex items-center gap-2"><span class="bg-indigo-100 text-indigo-700 p-1 rounded">⌨️</span> <strong>Saisie (Quiz) :</strong> Vous devez taper la réponse exacte.</li>
+                                <li class="flex items-center gap-2"><span class="bg-indigo-100 text-indigo-700 p-1 rounded">⚡</span> <strong>Flashcards :</strong> Classique recto-verso.</li>
+                                <li class="flex items-center gap-2"><span class="bg-indigo-100 text-indigo-700 p-1 rounded">🧩</span> <strong>Texte à Trous :</strong> Le mot réponse est masqué dans la phrase.</li>
+                                <li class="flex items-center gap-2"><span class="bg-indigo-100 text-indigo-700 p-1 rounded">✅</span> <strong>Choix Multiples :</strong> Réponses fausses générées automatiquement.</li>
+                            </ul>
+                        </section>
 
-                        <p class="text-sm text-gray-700 mt-4">
-                            Plusieurs options complémentaires sont également disponibles : 
-                        </p>
-              
-                        <ul class="list-disc list-inside text-sm text-gray-700 mt-2">
-                            <li><b>Afficher X mots source (1-4)</b> vous permet d'afficher 1, 2, 3 ou 4 mots/images de la colonne source en même temps. Si vous choisissez 2, 3 ou 4, les modes Saisie, Choix Multiples et Mixte sont désactivés.</li>
-                            <li><b>Tout revoir en aléatoire pendant X secondes</b> vous permet de fixer une durée de fin plutôt qu'un nombre de mots.</li>
-                            <li><b>Lire dans l'ordre</b> vous permet de revoir les informations renseignées dans l'ordre dans lequel ils ont été renseignés.</li>
-                            <li>Avec l'option <b>Timer</b>, les mots changent automatiquement et aléatoirement, sans intervention de l'utilisateur.</li>
-                            <li><b>Afficher les autres données</b> permet d'afficher les informations renseignées dans les colonnes autres que Source et Cible.</li>
-         
-                            <li><b>Limiter le nombre de mots</b> permet, par exemple, de ne revoir que 10 mots sur les 1000 renseignés par exemple. Les 10 mots seront choisis aléatoirement.</li>
-                        </ul>
+                        <section>
+                            <h4 class="font-bold text-lg text-emerald-700 dark:text-emerald-400 border-b border-gray-100 dark:border-zinc-700 pb-2 mb-3">3. Le Système SRS (Répétition Espacée)</h4>
+                            <p class="text-sm text-justify leading-relaxed">
+                                Algorithme de mémorisation long terme. Si vous réussissez, la carte revient plus tard. Si vous échouez, elle revient tout de suite.
+                                <br><br>
+                                <em class="text-xs text-gray-400 bg-gray-50 dark:bg-zinc-700 px-2 py-1 rounded">Astuce : Activez "Activer SRS" pour utiliser cette intelligence (Non disponible en Lecture Simple).</em>
+                            </p>
+                        </section>
 
-                        <p class="text-sm text-gray-700 mt-4">
-                            Vous pouvez copier jusqu'à 5 colonnes. Le jeu vous permet de déterminer avec lesquelles vous souhaitez travailler (colonne source = mot présenté ; colonne cible = mot recherché).
-                        </p>
-
-                        <p class="text-sm text-gray-700 mt-4">
-                            Vous pouvez également importer des images. Le format JPEG est fortement recommandé. Le nom des images correspond aux informations de la 2e colonne. Par exemple, si vous ajoutez une photo de serpent intitulée "Reptile", en mode saisie, c'est le mot "Reptile" que vous devrez renseigner.
-                        </p>
+                        <section>
+                            <h4 class="font-bold text-lg text-indigo-700 dark:text-indigo-400 border-b border-gray-100 dark:border-zinc-700 pb-2 mb-3">4. Astuces Pro</h4>
+                            <ul class="text-sm space-y-2">
+                                <li><strong>Smart Sync Audio :</strong> Le jeu attend la fin de la voix avant de passer à la suite.</li>
+                                <li><strong>Analyse de Lenteur :</strong> Le jeu détecte vos hésitations pour un entraînement ciblé à la fin.</li>
+                            </ul>
+                        </section>
 
                     </div>
-                    <div class="items-center px-4 py-3">
-                        <button id="close-help-button" class="px-4 py-2 bg-indigo-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            Retour
-                        </button>
+                    <div class="items-center px-4 py-3 mt-6">
+                        <button id="close-help-button" class="px-6 py-4 bg-indigo-600 text-white font-bold rounded-2xl w-full hover:bg-indigo-700 shadow-xl shadow-indigo-200 hover:shadow-indigo-300 transition-all transform hover:-translate-y-1">C'est parti !</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="setup-screen" class="w-full">
-            <h1 class="text-3xl font-bold mb-4 text-slate-800">Préparez le jeu</h1>
-            <p id="help-link" class="text-indigo-600 cursor-pointer hover:underline mb-6">Aide sur le fonctionnement du jeu</p>
+        <div id="setup-screen" class="w-full relative z-10">
+            <h1 class="text-4xl font-extrabold mb-2 text-gray-800 dark:text-white tracking-tight">Jeu de Mots</h1>
+            <p id="help-link" class="text-indigo-500 dark:text-indigo-400 font-medium cursor-pointer hover:text-indigo-600 mb-8 transition-colors text-sm">Guide & Fonctionnalités</p>
             
-            <div class="w-full mb-4">
-       
-                <div class="flex justify-around gap-4">
-                    <button id="text-tab-btn" class="tab-button active">Coller le texte</button>
-                    <button id="image-tab-btn" class="tab-button inactive">Importer des images</button>
+            <div class="w-full mb-6">
+                <div class="flex justify-around gap-6 mb-4">
+                    <button id="text-tab-btn" class="tab-button active">Données Texte</button>
+                    <button id="image-tab-btn" class="tab-button inactive">Images</button>
                 </div>
-                <div id="text-tab-content" class="pt-4">
-    
-                    <textarea id="word-input-all" class="w-full h-64 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-700 resize-none" placeholder="Collez ici vos mots (colonnes séparées par des tabulations, lignes par des sauts de ligne)."></textarea>
+                <div id="text-tab-content" class="pt-2">
+                    <p class="text-xs text-gray-400 mb-2 text-left ml-1">Format: Source | Cible | Contexte | Mnémotechnique</p>
+                    <textarea id="word-input-all" class="soft-input w-full h-40 p-6 rounded-2xl text-gray-700 dark:text-white resize-none shadow-inner" placeholder="Collez vos données ici..."></textarea>
                 </div>
                 <div id="image-tab-content" class="hidden pt-4">
-                    
-                    <input type="file" id="image-input" multiple accept="image/jpeg, image/png" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
-                    <div id="image-preview-container" class="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 max-h-64 overflow-y-auto p-2 border rounded-lg bg-slate-50"></div>
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-2xl cursor-pointer bg-gray-50 hover:bg-gray-100 dark:bg-zinc-800 dark:border-zinc-600 transition-colors">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Cliquez pour importer</span> ou glissez-déposez</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG</p>
+                        </div>
+                        <input type="file" id="image-input" multiple accept="image/jpeg, image/png" class="hidden">
+                    </label>
+                    <div id="image-preview-container" class="mt-6 grid grid-cols-5 gap-4 max-h-40 overflow-y-auto p-4 border border-gray-100 rounded-2xl bg-white dark:bg-zinc-700/30"></div>
                 </div>
             </div>
             
-            <div class="w-full mb-4">
-                <select id="game-mode-select" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-700 bg-slate-100 text-center">
-                    <option value="default">Mode Par défaut</option>
-                    <option value="typing">Mode Saisie</option>
-                    <option value="flashcard">Mode Flashcards</option>
-                    <option value="mc" id="mc-option">Mode Choix multiples</option>
-                    <option value="mixed" id="mixed-option">Mode Mixte</option>
+            <div class="w-full mb-6 flex gap-4">
+                <select id="game-mode-select" class="soft-input w-full p-4 rounded-2xl text-center text-gray-700 dark:text-white font-medium cursor-pointer appearance-none">
+                    <option value="default">🎓 Lecture Simple</option>
+                    <option value="typing">⌨️ Saisie (Quiz)</option>
+                    <option value="flashcard">⚡ Flashcards</option>
+                    <option value="cloze">🧩 Texte à Trous (Cloze)</option>
+                    <option value="mc" id="mc-option">✅ Choix multiples</option>
+                    <option value="mixed" id="mixed-option">🔀 Mode Mixte</option>
                 </select>
+                <button id="memory-preset-btn" class="w-1/3 px-4 bg-amber-50 text-amber-700 text-xs font-bold rounded-2xl hover:bg-amber-100 border border-amber-100 transition-colors" title="Chunking 3 mots">Preset Mémoire</button>
             </div>
 
-            <fieldset class="p-4 border border-slate-200 rounded-lg mb-4 text-left bg-slate-100">
-                <legend class="text-base font-semibold text-slate-700 px-2">Modes temporels</legend>
-                <div class="flex items-center space-x-2"><input type="checkbox" id="review-all-checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"><label for="review-all-checkbox" class="text-gray-700">Tout revoir en aléatoire pendant</label><input type="number" id="review-all-seconds" min="1" class="w-20 p-1 border border-gray-300 rounded-md" placeholder="ex: 60"><label for="review-all-seconds" class="text-gray-700">secondes</label></div>
-                <div class="flex items-center space-x-2 mt-2"><input type="checkbox" id="timer-mode-checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"><label for="timer-mode-checkbox" class="text-gray-700">Timer</label><input type="number" id="timer-seconds" min="0.1" max="99" step="0.1" class="w-20 p-1 border border-gray-300 rounded-md" placeholder="ex: 5"><label for="timer-seconds" class="text-gray-700">secondes</label></div>
-            </fieldset>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                
+                <fieldset class="p-6 bg-white dark:bg-zinc-800/50 rounded-3xl text-left border border-gray-100 dark:border-zinc-700/50 shadow-sm hover:shadow-md transition-shadow">
+                    <legend class="text-sm font-bold text-indigo-500 px-3 uppercase tracking-wider">Mémorisation</legend>
+                    <div class="mb-4 mt-2">
+                        <div class="flex items-center justify-between">
+                            <label for="timer-mode-checkbox" class="text-gray-700 dark:text-gray-300 font-semibold cursor-pointer select-none">Cadence Auto</label>
+                            <input type="checkbox" id="timer-mode-checkbox" class="h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
+                        </div>
+                        <div class="flex items-center space-x-3 mt-3 justify-end">
+                            <input type="number" id="timer-seconds" min="0.5" max="999" step="0.5" class="w-20 p-2 text-center text-sm border rounded-lg bg-gray-50 dark:bg-zinc-700" placeholder="3">
+                            <span class="text-xs text-gray-500">sec/carte</span>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-4 border-t border-gray-100 dark:border-zinc-700">
+                         <div class="flex items-center justify-between">
+                            <label for="srs-mode-checkbox" class="text-emerald-700 dark:text-emerald-400 font-bold cursor-pointer select-none">Mode SRS (Intelligent)</label>
+                            <input type="checkbox" id="srs-mode-checkbox" class="h-5 w-5 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500">
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-1">Gère les révisions automatiquement (Modes interactifs uniquement).</p>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t border-gray-100 dark:border-zinc-700 flex items-center justify-between">
+                         <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="review-all-checkbox" class="h-4 w-4 rounded text-indigo-600">
+                            <label for="review-all-checkbox" class="text-gray-600 dark:text-gray-400 text-sm">Limite temps</label>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="review-all-seconds" min="1" class="w-16 p-1 text-center text-sm border rounded-lg bg-gray-50 dark:bg-zinc-700" placeholder="60">
+                            <span class="text-xs text-gray-400">s</span>
+                        </div>
+                    </div>
+                </fieldset>
+                
+                <fieldset class="p-6 bg-white dark:bg-zinc-800/50 rounded-3xl text-left border border-gray-100 dark:border-zinc-700/50 shadow-sm hover:shadow-md transition-shadow">
+                    <legend class="text-sm font-bold text-emerald-600 px-3 uppercase tracking-wider">Audio & Voix</legend>
+                    
+                    <div class="flex items-center justify-between mb-4 mt-2">
+                        <label for="tts-checkbox" class="text-gray-700 dark:text-gray-300 font-bold text-lg cursor-pointer select-none">Activer la voix</label>
+                        <input type="checkbox" id="tts-checkbox" class="h-6 w-6 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500">
+                    </div>
+
+                    <div id="tts-options" class="space-y-4 opacity-50 pointer-events-none transition-all duration-300">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="tts-rate" class="text-xs font-bold text-gray-500 uppercase">Vitesse</label>
+                                <span id="tts-rate-value" class="text-xs font-mono bg-emerald-50 text-emerald-700 px-2 py-1 rounded-md">1.0x</span>
+                            </div>
+                            <input type="range" id="tts-rate" min="0.5" max="2.5" step="0.1" value="1" class="w-full h-1 bg-emerald-100 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="tts-interval" class="text-xs font-bold text-gray-500 uppercase">Pause</label>
+                                <span id="tts-interval-value" class="text-xs font-mono bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md">0s</span>
+                            </div>
+                            <input type="range" id="tts-interval" min="0" max="2" step="0.1" value="0" class="w-full h-1 bg-indigo-100 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        </div>
+
+                        <div class="flex items-center space-x-2 border-t border-gray-100 dark:border-zinc-700 pt-3">
+                            <input type="checkbox" id="tts-en-numbers" class="h-4 w-4 rounded text-gray-600">
+                            <label for="tts-en-numbers" class="text-xs text-gray-500">Nombres en Anglais</label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
             
-            <fieldset class="p-4 border border-slate-200 rounded-lg mb-4 text-left bg-slate-100">
-                <legend class="text-base font-semibold text-slate-700 px-2">Options de jeu</legend>
+            <fieldset class="p-6 bg-gray-50 dark:bg-zinc-800/30 rounded-3xl mb-6 text-left border border-gray-100 dark:border-zinc-700/30">
+                <legend class="text-xs font-bold text-gray-400 px-2 uppercase">Mapping</legend>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                    <div class="w-full">
+                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-300 mb-1 ml-1">Affiché (Source)</label>
+                        <select id="source-column-select" class="w-full p-3 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl text-gray-700 dark:text-gray-200 text-sm"><option value="1">Colonne 1</option><option value="2">Colonne 2</option><option value="3">Colonne 3</option><option value="4">Colonne 4</option></select>
+                    </div>
+                    <div class="w-full">
+                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-300 mb-1 ml-1">Réponse (Cible)</label>
+                        <select id="target-column-select" class="w-full p-3 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl text-gray-700 dark:text-gray-200 text-sm"><option value="2">Colonne 2</option><option value="1">Colonne 1</option><option value="3">Colonne 3</option><option value="4">Colonne 4</option></select>
+                    </div>
                     
-                    <div class="w-full"><label for="source-column-select" class="block text-sm font-medium text-gray-700 mb-1">Colonne source</label><select id="source-column-select" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-700"><option value="1">Colonne 1</option><option value="2">Colonne 2</option><option value="3">Colonne 3</option><option value="4">Colonne 4</option><option value="5">Colonne 5</option></select></div>
-                    <div class="w-full"><label for="target-column-select" class="block text-sm font-medium text-gray-700 mb-1">Colonne cible</label><select id="target-column-select" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-700"><option value="2">Colonne 2</option><option value="1">Colonne 1</option><option value="3">Colonne 3</option><option value="4">Colonne 4</option><option value="5">Colonne 5</option></select></div>
-                    
-                    <div class="flex items-center space-x-2"><input type="checkbox" id="in-order-checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"><label for="in-order-checkbox" class="text-gray-700">Lire dans l'ordre</label></div>
-                    <div class="flex items-center space-x-2"><input type="checkbox" id="show-other-cols-checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"><label for="show-other-cols-checkbox" class="text-gray-700">Afficher les autres données</label></div>
-                    
-                    <div class="flex items-center gap-2">
-                        <label for="num-source-words-select" class="text-gray-700">Mots source à afficher:</label>
-                        <select id="num-source-words-select" class="w-20 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-700">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
+                    <div class="flex items-center space-x-2 mt-2"><input type="checkbox" id="in-order-checkbox" class="h-4 w-4 text-indigo-600 rounded"><label for="in-order-checkbox" class="text-sm text-gray-600 dark:text-gray-300">Ordre séquentiel (si SRS off)</label></div>
+                    <div class="flex items-center gap-2 mt-2 justify-end">
+                        <label class="text-sm text-gray-600 dark:text-gray-300">Chunking (Mots/carte):</label>
+                        <select id="num-source-words-select" class="w-16 p-1 border rounded-lg text-gray-700 dark:text-white font-bold bg-white dark:bg-zinc-700 text-sm">
+                            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
                         </select>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <label for="word-limit" class="text-gray-700">Limiter le nombre de mots:</label>
-                        <input type="number" id="word-limit" class="w-40 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-700" placeholder="Par défaut : tous les mots">
-                    </div>
+                    
+                    <div class="col-span-1 md:col-span-2 mt-2 pt-3 border-t border-gray-200 dark:border-zinc-600">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="manual-layout-checkbox" class="h-4 w-4 text-indigo-600 rounded">
+                                <label for="manual-layout-checkbox" class="text-sm text-gray-700 dark:text-gray-300 font-bold cursor-pointer">Layout Manuel (Images)</label>
+                            </div>
+                            <button id="configure-layout-btn" class="hidden px-4 py-1 bg-amber-500 text-white text-xs font-bold rounded-full shadow hover:bg-amber-600 transition">Configurer</button>
+                            <span id="layout-status" class="hidden text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-full">✓ Prêt</span>
+                        </div>
+                     </div>
                 </div>
             </fieldset>
+
+            <div class="flex items-center space-x-6 mb-6 justify-center bg-white dark:bg-zinc-800/80 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-700">
+                <div class="flex items-center space-x-3">
+                    <label for="start-countdown-select" class="text-gray-600 dark:text-gray-300 text-sm font-semibold">Décompte :</label>
+                    <select id="start-countdown-select" class="p-2 border border-gray-200 dark:border-zinc-600 rounded-lg text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-zinc-700">
+                        <option value="0">Direct</option>
+                        <option value="3" selected>3s</option>
+                        <option value="5">5s</option>
+                        <option value="10">10s</option>
+                    </select>
+                </div>
+                <div class="w-px h-6 bg-gray-300 dark:bg-zinc-600"></div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" id="keep-settings-checkbox" class="h-4 w-4 text-indigo-600 rounded">
+                    <label for="keep-settings-checkbox" class="text-gray-500 dark:text-gray-400 text-sm">Sauvegarder config</label>
+                </div>
+            </div>
             
-            <button id="start-button" class="mt-6 px-8 py-3 bg-indigo-600 text-white font-semibold rounded-full shadow-lg hover:bg-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Lancer le jeu</button>
+            <button id="start-button" class="w-full mt-4 px-8 py-5 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-bold text-xl rounded-full shadow-xl shadow-indigo-200 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300">LANCER L'ENTRAÎNEMENT</button>
         </div>
 
-        <div id="game-screen" class="hidden w-full">
-            <div class="flex justify-between items-center mb-6 w-full">
-                <button id="return-button" class="px-4 py-2 bg-slate-500 text-white text-sm font-medium rounded-full shadow-sm hover:bg-slate-600 transition duration-300">Retour au menu</button>
-             
-                <div class="text-sm font-medium text-gray-500" id="progress-display"></div>
-                <div class="flex items-baseline gap-2">
-                    <h2 id="chronometer-label" class="text-sm font-medium text-gray-500">Chronomètre</h2>
-                    <div id="timer-display" class="text-sm font-bold text-gray-900 tabular-nums">0.000s</div>
+        <div id="game-screen" class="hidden w-full relative z-10 flex flex-col h-full min-h-[600px] justify-between">
+            
+            <div>
+                <div class="flex justify-between items-center mb-4 w-full px-2">
+                    <div id="combo-container" class="opacity-0 transition-opacity font-black text-2xl italic text-emerald-500 flex items-center gap-2">
+                        <span class="text-sm not-italic font-normal text-gray-400">Combo</span>
+                        <span id="combo-value">0</span> 🔥
+                     </div>
+                    <div class="text-xs font-bold text-gray-300 tracking-wider uppercase" id="progress-display"></div>
                 </div>
-         
+
+                <div class="w-full bg-gray-100 dark:bg-zinc-700 rounded-full h-2 mb-6 overflow-hidden">
+                    <div id="progress-bar-fill" class="bg-gradient-to-r from-indigo-400 to-indigo-600 h-2 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                </div>
+
+                <div class="flex justify-between items-center mb-8 px-2">
+                    <button id="return-button" class="px-4 py-2 bg-gray-100 text-gray-500 text-xs font-bold rounded-full hover:bg-gray-200 hover:text-gray-700 transition-colors">Arrêter</button>
+                    <div class="flex items-baseline gap-2 bg-gray-50 dark:bg-zinc-800 px-3 py-1 rounded-lg border border-gray-100 dark:border-zinc-700">
+                        <div id="timer-display" class="text-sm font-mono font-bold text-gray-600 dark:text-gray-400 tabular-nums">0.000s</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="game-area" class="relative flex-grow flex flex-col items-center justify-center w-full">
+                <div id="word-display" class="w-full min-h-[350px] flex flex-wrap items-center justify-center gap-8 p-10 transition-all duration-500"></div>
+                
+                <div id="cloze-display" class="hidden text-3xl text-gray-800 dark:text-gray-200 font-medium my-6 p-8 bg-gray-50 dark:bg-zinc-800/50 rounded-2xl border-l-4 border-indigo-400 leading-relaxed shadow-inner"></div>
+
+                <div id="flashcard-reveal" class="invisible flex flex-col items-center my-6 min-h-[80px] p-4 rounded-2xl bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm border border-white/20 dark:border-white/5 shadow-lg w-full max-w-lg transition-all">
+                    <span id="target-word-display" class="text-3xl font-bold text-gray-800 dark:text-gray-100 preserve-lines mb-2 tracking-tight"></span>
+                    <div id="mnemonic-display" class="hidden mt-2 w-full bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 p-3 rounded-xl text-sm text-amber-800 dark:text-amber-400 italic text-center">
+                       <span id="mnemonic-text"></span>
+                    </div>
+                </div>
             </div>
             
-            <div id="word-display" class="min-h-[250px] flex flex-wrap items-center justify-center gap-4 p-4">
+            <div class="mt-auto w-full flex flex-col items-center pb-4">
+                <div class="flex justify-center items-center gap-6 w-full">
+                    <button id="show-hint-button" class="hidden mb-6 px-4 py-2 bg-amber-50 text-amber-600 text-xs font-bold rounded-full hover:bg-amber-100 border border-amber-100 transition-colors">Indice</button>
+                    
+                    <button id="show-word-button" class="hidden mb-6 px-10 py-4 bg-emerald-50 text-emerald-700 font-bold text-lg rounded-2xl border border-emerald-100 hover:bg-emerald-100 hover:shadow-lg transition-all transform hover:-translate-y-1">Voir Réponse</button>
+                  
+                    <button id="next-word-button" class="mb-6 px-10 py-4 bg-indigo-600 text-white font-bold text-lg rounded-2xl shadow-xl shadow-indigo-200 hover:bg-indigo-700 hover:shadow-2xl transition-all transform hover:-translate-y-1">Suivant</button>
                 </div>
-            
-            <div id="flashcard-reveal" class="invisible text-xl my-4 text-gray-600 italic min-h-[56px]">
-                <span id="target-word-display" class="font-bold preserve-lines"></span>
-                <div id="other-cols-display" class="hidden text-sm mt-2 text-gray-500"></div>
+                
+                 <input type="text" id="typing-input" class="soft-input hidden w-full max-w-lg p-5 text-center text-xl rounded-2xl focus:ring-2 focus:ring-indigo-100" placeholder="Tapez la réponse ici...">
+                 
+                <div id="multiple-choice-container" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl mt-4"></div>
+                <div id="game-instruction" class="text-gray-400 text-xs mt-6 font-medium tracking-wide uppercase">Appuyez sur Espace ou Entrée</div>
             </div>
-            
-            <div class="mt-2 w-full flex flex-col items-center">
-                <div class="flex justify-center items-center gap-4">
-                    <button id="show-word-button" class="hidden mb-4 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-emerald-700 transition duration-300 transform hover:scale-105">Voir le mot</button>
-                    <button id="next-word-button" class="mb-4 px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-indigo-700 transition duration-300 transform hover:scale-105">Mot suivant →</button>
-                </div>
-       
-                <input type="text" id="typing-input" class="hidden w-full max-w-md p-3 text-center border-2 border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200" placeholder="Tapez la réponse ici">
-                <div id="multiple-choice-container" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg mt-4"></div>
-                <div id="game-instruction" class="text-gray-500 text-sm mt-4">Utilisez la flèche droite (→) pour passer au mot suivant.</div>
-            </div>
-      
         </div>
         
-        <div id="end-screen" class="hidden w-full">
-            <h2 class="text-3xl font-bold mb-4 text-slate-800">Jeu terminé !</h2>
-            <div id="review-all-summary" class="hidden text-lg mb-4"></div>
-            <div class="mb-6"><span class="text-gray-600 text-lg">Votre temps total : </span><span id="final-time-display" class="text-4xl font-extrabold text-indigo-600 tabular-nums">0.000s</span></div>
-          
-            <div id="history-container" class="mt-8 overflow-x-auto w-full">
-                <h3 id="history-title" class="text-xl font-semibold mb-4 text-slate-800">Historique des mots et temps</h3>
-                <table class="min-w-full bg-white rounded-lg shadow">
-                    <thead class="bg-slate-100">
+        <div id="end-screen" class="hidden w-full relative z-10">
+            <h2 class="text-4xl font-extrabold mb-8 text-gray-800 dark:text-white">Session Terminée</h2>
+            
+            <div class="mb-8 flex gap-4 justify-center">
+                <div class="bg-indigo-50 dark:bg-zinc-800 p-4 rounded-2xl w-40">
+                    <span class="block text-gray-400 text-xs uppercase font-bold mb-1">Temps Total</span>
+                    <span id="final-time-display" class="text-2xl font-bold text-indigo-600"></span>
+                </div>
+                <div class="bg-emerald-50 dark:bg-zinc-800 p-4 rounded-2xl w-40">
+                    <span class="block text-gray-400 text-xs uppercase font-bold mb-1">Meilleur Combo</span>
+                    <span id="final-combo-display" class="text-2xl font-bold text-emerald-600"></span>
+                </div>
+             </div>
+
+            <div id="analytics-container" class="w-full mb-8">
+                <h3 class="text-lg font-bold text-gray-700 dark:text-gray-300 mb-4 text-left flex items-center gap-2"><span class="bg-red-100 text-red-600 p-1 rounded-md text-xs">⚠️</span> Analyse : Points de friction</h3>
+                <div class="overflow-x-auto w-full max-h-60 overflow-y-auto border border-gray-100 dark:border-zinc-700 rounded-2xl shadow-sm">
+                    <table class="min-w-full bg-white dark:bg-zinc-800 text-sm">
+                        <thead class="bg-gray-50 dark:bg-zinc-700 sticky top-0">
+                            <tr>
+                                <th class="py-3 px-6 text-left font-bold text-gray-600 dark:text-gray-300">Mot Cible</th>
+                                <th class="py-3 px-6 text-center font-bold text-gray-600 dark:text-gray-300">Erreurs</th>
+                                <th class="py-3 px-6 text-center font-bold text-gray-600 dark:text-gray-300">Temps Moyen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="analytics-table-body" class="divide-y divide-gray-100 dark:divide-zinc-700"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="w-full mb-8 p-6 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-900/20 flex flex-col items-center shadow-sm">
+                <h4 class="font-bold text-amber-800 dark:text-amber-500 mb-3">🐢 Entraînement : Cibler la lenteur</h4>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <span class="text-sm text-amber-900/70 dark:text-amber-500/70">Rejouer les</span>
+                    <input type="number" id="slow-replay-count" value="5" min="1" max="100" class="w-16 p-2 border border-amber-200 rounded-xl text-center font-bold text-amber-800 bg-white">
+                    <span class="text-sm text-amber-900/70 dark:text-amber-500/70">éléments les plus lents.</span>
+                    <button id="replay-slow-btn" class="mt-2 sm:mt-0 ml-4 px-6 py-2 bg-amber-500 text-white font-bold text-sm rounded-full shadow hover:bg-amber-600 transition">Lancer</button>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold text-gray-700 dark:text-gray-300 mb-4 text-left">Historique Complet</h3>
+            <div id="history-container" class="overflow-x-auto w-full max-h-60 overflow-y-auto border border-gray-100 dark:border-zinc-700 rounded-2xl shadow-sm">
+                <table class="min-w-full bg-white dark:bg-zinc-800 text-sm">
+                    <thead class="bg-gray-50 dark:bg-zinc-700 sticky top-0">
                         <tr>
-    
-                            <th id="history-col-source" class="py-2 px-4 text-center font-medium text-slate-600">Source</th>
-                            <th id="history-col-target" class="py-2 px-4 text-center font-medium text-slate-600">Cible</th>
-                            <th class="py-2 px-4 text-center font-medium text-slate-600">Autres</th>
-   
-                            <th class="py-2 px-4 text-center font-medium text-slate-600">Temps</th>
+                            <th class="py-3 px-6 text-center font-medium text-gray-500 dark:text-gray-400">Source</th>
+                            <th class="py-3 px-6 text-center font-medium text-gray-500 dark:text-gray-400">Cible</th>
+                            <th class="py-3 px-6 text-center font-medium text-gray-500 dark:text-gray-400">Temps</th>
+                            <th class="py-3 px-6 text-center font-medium text-gray-500 dark:text-gray-400">Résultat</th>
                         </tr>
                     </thead>
-                    <tbody id="history-table-body" class="divide-y divide-slate-200"></tbody>
-   
+                    <tbody id="history-table-body" class="divide-y divide-gray-100 dark:divide-zinc-700"></tbody>
                 </table>
             </div>
-            <div id="replay-options" class="flex items-center justify-center gap-2 mt-4">
-                <label for="replay-longest-count">Revoir les</label>
-                <input type="number" id="replay-longest-count" min="1" class="w-20 p-1 border border-gray-300 rounded-md text-center" placeholder="10">
-             
-                <label for="replay-longest-count">mots les plus longs.</label>
-            </div>
-            <div class="flex flex-col md:flex-row gap-4 mt-8">
-                <button id="replay-button" class="px-6 py-3 bg-emerald-600 text-white font-semibold rounded-full shadow-lg hover:bg-emerald-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">Rejouer</button>
-                <button id="reset-button" class="px-6 py-3 bg-slate-600 text-white font-semibold rounded-full shadow-lg hover:bg-slate-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2">Recommencer</button>
+
+            <div class="flex flex-col md:flex-row gap-6 mt-10 justify-center">
+                <button id="replay-button" class="hidden px-8 py-3 bg-emerald-50 text-emerald-700 font-bold rounded-full border border-emerald-100 hover:bg-emerald-100 transition">Rejouer les erreurs</button>
+                <button id="reset-button" class="px-8 py-3 bg-gray-100 text-gray-600 font-bold rounded-full hover:bg-gray-200 transition">Retour Accueil</button>
             </div>
         </div>
-
     </div>
 
     <script>
-        // DOM elements
+        // --- ELEMENTS DOM ---
         const setupScreen = document.getElementById('setup-screen');
         const gameScreen = document.getElementById('game-screen');
         const endScreen = document.getElementById('end-screen');
@@ -289,79 +477,116 @@
         const imageTabBtn = document.getElementById('image-tab-btn');
         const textTabContent = document.getElementById('text-tab-content');
         const imageTabContent = document.getElementById('image-tab-content');
-        const wordLimitInput = document.getElementById('word-limit');
+        
+        const gameModeSelect = document.getElementById('game-mode-select');
+        const memoryPresetBtn = document.getElementById('memory-preset-btn');
+        const mcOption = document.getElementById('mc-option');
+        const mixedOption = document.getElementById('mixed-option');
+        const sourceColumnSelect = document.getElementById('source-column-select');
+        const targetColumnSelect = document.getElementById('target-column-select');
+        const inOrderCheckbox = document.getElementById('in-order-checkbox');
+        const srsModeCheckbox = document.getElementById('srs-mode-checkbox');
+        const reviewAllCheckbox = document.getElementById('review-all-checkbox');
+        const reviewAllSecondsInput = document.getElementById('review-all-seconds');
+        const numSourceWordsSelect = document.getElementById('num-source-words-select');
+        const timerModeCheckbox = document.getElementById('timer-mode-checkbox');
+        const timerSecondsInput = document.getElementById('timer-seconds');
+        
+        const startCountdownSelect = document.getElementById('start-countdown-select');
+        const countdownOverlay = document.getElementById('countdown-overlay');
+        const countdownNumber = document.getElementById('countdown-number');
+        const keepSettingsCheckbox = document.getElementById('keep-settings-checkbox');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const darkModeIcon = document.getElementById('dark-mode-icon');
+        const ttsCheckbox = document.getElementById('tts-checkbox');
+        const ttsOptionsDiv = document.getElementById('tts-options');
+        const ttsRateInput = document.getElementById('tts-rate');
+        const ttsRateValue = document.getElementById('tts-rate-value');
+        const ttsIntervalInput = document.getElementById('tts-interval');
+        const ttsIntervalValue = document.getElementById('tts-interval-value');
+        const ttsEnNumbersCheckbox = document.getElementById('tts-en-numbers');
+        const manualLayoutCheckbox = document.getElementById('manual-layout-checkbox');
+        const configureLayoutBtn = document.getElementById('configure-layout-btn');
+        const layoutStatus = document.getElementById('layout-status');
+        const layoutEditorModal = document.getElementById('layout-editor-modal');
+        const layoutEditorArea = document.getElementById('layout-editor-area');
+        const saveLayoutBtn = document.getElementById('save-layout-btn');
+        const cancelLayoutBtn = document.getElementById('cancel-layout-btn');
+
         const startButton = document.getElementById('start-button');
+        const progressDisplay = document.getElementById('progress-display');
+        const progressBarFill = document.getElementById('progress-bar-fill');
         const timerDisplay = document.getElementById('timer-display');
+        const comboContainer = document.getElementById('combo-container');
+        const comboValueDisplay = document.getElementById('combo-value');
         const wordDisplayContainer = document.getElementById('word-display');
+        const clozeDisplay = document.getElementById('cloze-display');
+        const flashcardReveal = document.getElementById('flashcard-reveal');
+        const targetWordDisplay = document.getElementById('target-word-display');
+        const mnemonicDisplay = document.getElementById('mnemonic-display');
+        const mnemonicText = document.getElementById('mnemonic-text');
+        
+        const showWordButton = document.getElementById('show-word-button');
+        const showHintButton = document.getElementById('show-hint-button');
+        const nextWordButton = document.getElementById('next-word-button');
+        const typingInput = document.getElementById('typing-input');
+        const multipleChoiceContainer = document.getElementById('multiple-choice-container');
+
         const finalTimeDisplay = document.getElementById('final-time-display');
+        const finalComboDisplay = document.getElementById('final-combo-display');
+        const historyTableBody = document.getElementById('history-table-body');
+        const analyticsTableBody = document.getElementById('analytics-table-body');
         const replayButton = document.getElementById('replay-button');
         const resetButton = document.getElementById('reset-button');
-        const historyTableBody = document.getElementById('history-table-body');
+        const returnButton = document.getElementById('return-button');
+        
+        const slowReplayCount = document.getElementById('slow-replay-count');
+        const replaySlowBtn = document.getElementById('replay-slow-btn');
+
         const customAlert = document.getElementById('custom-alert');
         const alertTitle = document.getElementById('alert-title');
         const alertMessage = document.getElementById('alert-message');
         const alertOkButton = document.getElementById('alert-ok-button');
-        const returnButton = document.getElementById('return-button');
-        
-        // --- ELEMENTS DOM ---
-        const gameModeSelect = document.getElementById('game-mode-select');
-        const mcOption = document.getElementById('mc-option');
-        const mixedOption = document.getElementById('mixed-option');
-
-        const sourceColumnSelect = document.getElementById('source-column-select');
-        const targetColumnSelect = document.getElementById('target-column-select');
-        const progressDisplay = document.getElementById('progress-display');
-        const typingInput = document.getElementById('typing-input');
-        const flashcardReveal = document.getElementById('flashcard-reveal');
-        const targetWordDisplay = document.getElementById('target-word-display');
-        const multipleChoiceContainer = document.getElementById('multiple-choice-container');
-        const gameInstruction = document.getElementById('game-instruction');
-        const historyColSource = document.getElementById('history-col-source');
-        const historyColTarget = document.getElementById('history-col-target');
-        const nextWordButton = document.getElementById('next-word-button');
-        const chronometerLabel = document.getElementById('chronometer-label');
-        const showWordButton = document.getElementById('show-word-button');
-        const inOrderCheckbox = document.getElementById('in-order-checkbox');
-        const reviewAllCheckbox = document.getElementById('review-all-checkbox');
-        const reviewAllSecondsInput = document.getElementById('review-all-seconds');
-        const showOtherColsCheckbox = document.getElementById('show-other-cols-checkbox');
-        const otherColsDisplay = document.getElementById('other-cols-display');
-        const replayLongestCountInput = document.getElementById('replay-longest-count');
-        const replayOptionsDiv = document.getElementById('replay-options');
-        const historyTitle = document.getElementById('history-title');
         const helpLink = document.getElementById('help-link');
         const helpModal = document.getElementById('help-modal');
         const closeHelpButton = document.getElementById('close-help-button');
-        const reviewAllSummary = document.getElementById('review-all-summary');
-        const timerModeCheckbox = document.getElementById('timer-mode-checkbox');
-        const timerSecondsInput = document.getElementById('timer-seconds');
-        const numSourceWordsSelect = document.getElementById('num-source-words-select');
-        
-        // Game state variables
+        // --- STATE ---
         let wordData = [];
-        let shuffledIndices = [];
+        let playQueue = [];
+        let currentQueueIndex = 0;
         let currentWordIndex = 0;
+        
         let gameStarted = false;
         let startTime = 0;
-        let timerInterval = null;
+        let timerInterval = null; 
         let masterTimer = null;
-        let wordTimings = [];
-        let wordStartTime = 0;
-        
-        let activeGameMode = 'default';
-        let isReviewAllMode = false;
-        let isTimerMode = false;
+        let autoAdvanceTimeout = null;
+        let currentCardStartTime = 0;
+        let speakTimeoutId = null;
 
-        let numSourceWords = 1;
-        let wordTimerInterval = null;
-        let audioCtx;
+        let wordTimings = []; // Log: { index, time, isError }
+        let wordStartTime = 0;
         let isWordRevealed = false;
         let isError = false;
-        let sourceColumn;
-        let targetColumn;
-        const columnMap = { '1': 'Colonne 1', '2': 'Colonne 2', '3': 'Colonne 3', '4': 'Colonne 4', '5': 'Colonne 5' };
-        
-        // --- MODAL & ALERT FUNCTIONS ---
+        let savedLayout = null;
+        // Settings State
+        let isReviewAllMode = false;
+        let isTimerMode = false;
+        let isSrsMode = false;
+        let activeGameMode = 'default';
+        let numSourceWords = 1;
+        let sourceColumn = '1';
+        let targetColumn = '2';
+        // Gamification
+        let currentCombo = 0;
+        let maxCombo = 0;
+        // --- DARK MODE ---
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            darkModeIcon.textContent = isDark ? '☀️ Mode Clair' : '🌙 Mode Sombre';
+        });
+        // --- UTILS ---
         function showCustomAlert(title, message) {
             alertTitle.textContent = title;
             alertMessage.textContent = message;
@@ -371,25 +596,29 @@
         helpLink.addEventListener('click', () => helpModal.classList.remove('hidden'));
         closeHelpButton.addEventListener('click', () => helpModal.classList.add('hidden'));
 
-        // --- SETUP SCREEN LOGIC ---
+        // --- PRESET CHUNKING ---
+        memoryPresetBtn.addEventListener('click', () => {
+             numSourceWordsSelect.value = "3";
+             gameModeSelect.value = "flashcard";
+             timerModeCheckbox.checked = true;
+             timerSecondsInput.value = "5";
+             handleModeChange();
+             showCustomAlert("Preset Activé", "Mode Chunking (3 mots) + Timer 5s activé pour l'entraînement mémoire.");
+        });
+        // --- TABS & DATA ---
         textTabBtn.addEventListener('click', () => switchTab('text'));
         imageTabBtn.addEventListener('click', () => switchTab('image'));
-
         function switchTab(tab) {
             if (tab === 'text') {
                 textTabContent.classList.remove('hidden');
                 imageTabContent.classList.add('hidden');
-                textTabBtn.classList.add('active');
-                textTabBtn.classList.remove('inactive');
-                imageTabBtn.classList.add('inactive');
-                imageTabBtn.classList.remove('active');
+                textTabBtn.classList.add('active'); textTabBtn.classList.remove('inactive');
+                imageTabBtn.classList.add('inactive'); imageTabBtn.classList.remove('active');
             } else {
                 textTabContent.classList.add('hidden');
                 imageTabContent.classList.remove('hidden');
-                textTabBtn.classList.add('inactive');
-                textTabBtn.classList.remove('active');
-                imageTabBtn.classList.add('active');
-                imageTabBtn.classList.remove('inactive');
+                textTabBtn.classList.add('inactive'); textTabBtn.classList.remove('active');
+                imageTabBtn.classList.add('active'); imageTabBtn.classList.remove('inactive');
             }
             checkMultipleChoiceAvailability();
         }
@@ -399,82 +628,172 @@
             Array.from(e.target.files).forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (event) => {
-                    const imgContainer = document.createElement('div');
-                    imgContainer.className = 'relative p-1 border rounded-md shadow-sm bg-white';
                     const img = document.createElement('img');
                     img.src = event.target.result;
-                    img.className = 'w-full h-20 object-cover rounded';
- 
-                    imgContainer.appendChild(img);
-                    const name = document.createElement('p');
-                    name.textContent = file.name.split('.').slice(0, -1).join('.');
-                    name.className = 'text-xs truncate mt-1';
-           
-                    imgContainer.appendChild(name);
-                    imagePreviewContainer.appendChild(imgContainer);
+                    img.className = 'w-20 h-20 object-cover rounded-xl shadow-sm border border-gray-100';
+                    imagePreviewContainer.appendChild(img);
                 };
                 reader.readAsDataURL(file);
             });
             checkMultipleChoiceAvailability();
         });
-
         function checkMultipleChoiceAvailability() {
-            let uniqueWords;
             let totalCount = 0;
             const isImageMode = !imageTabContent.classList.contains('hidden');
-
-            if (isImageMode) {
-                const imageFiles = imageInput.files;
-                totalCount = imageFiles.length;
-                uniqueWords = new Set(Array.from(imageFiles).map(file => file.name.split('.').slice(0, -1).join('.')));
-            } else {
-                const rawInput = wordInputAll.value.trim();
-                const rows = rawInput.split('\n').filter(r => r.trim() !== '');
-                totalCount = rows.length;
-                const currentWordData = rows.map(row => row.split('\t')[targetColumnSelect.value - 1] || '').filter(Boolean);
-                uniqueWords = new Set(currentWordData);
-            }
-            
-            const isMCAvailable = uniqueWords.size >= 4;
+            if (isImageMode) totalCount = imageInput.files.length;
+            else totalCount = wordInputAll.value.trim().split('\n').filter(r => r.trim()).length;
+            const isMCAvailable = totalCount >= 4;
             mcOption.disabled = !isMCAvailable;
-            if (!isMCAvailable && gameModeSelect.value === 'mc') {
-                gameModeSelect.value = 'default';
-            }
-
-            const isMixedAvailable = totalCount >= 10;
-            mixedOption.disabled = !isMixedAvailable || !isMCAvailable;
-            if ((!isMixedAvailable || !isMCAvailable) && gameModeSelect.value === 'mixed') {
-                gameModeSelect.value = 'default';
-            }
-            
+            mixedOption.disabled = totalCount < 10 || !isMCAvailable;
+            if (mcOption.disabled && gameModeSelect.value === 'mc') gameModeSelect.value = 'default';
+            if (mixedOption.disabled && gameModeSelect.value === 'mixed') gameModeSelect.value = 'default';
             handleModeChange();
         }
         wordInputAll.addEventListener('input', checkMultipleChoiceAvailability);
-        targetColumnSelect.addEventListener('change', checkMultipleChoiceAvailability);
-        
-        // --- UTILITY FUNCTIONS ---
-        function playBeep() {
-            if (!audioCtx) {
-                try {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                } catch (e) {
-                    console.warn('Web Audio API is not supported in this browser.');
-                    return;
-                }
+        // --- TTS UI ---
+        ttsCheckbox.addEventListener('change', () => {
+            if (ttsCheckbox.checked) ttsOptionsDiv.classList.remove('opacity-50', 'pointer-events-none');
+            else ttsOptionsDiv.classList.add('opacity-50', 'pointer-events-none');
+        });
+        ttsRateInput.addEventListener('input', () => ttsRateValue.textContent = ttsRateInput.value + 'x');
+        ttsIntervalInput.addEventListener('input', () => ttsIntervalValue.textContent = ttsIntervalInput.value + 's');
+        // --- TTS LOGIC (SMART SYNC) ---
+        const synth = window.speechSynthesis;
+        function speakText(text, onComplete) {
+            if (synth.speaking) synth.cancel();
+            if (speakTimeoutId) clearTimeout(speakTimeoutId);
+
+            if (!ttsCheckbox.checked || !text || text.startsWith('data:image')) {
+                if(onComplete) onComplete();
+                return;
             }
-            if (!audioCtx) return;
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
-            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.1);
-            oscillator.start(audioCtx.currentTime);
-            oscillator.stop(audioCtx.currentTime + 0.1);
+
+            const rate = parseFloat(ttsRateInput.value);
+            const intervalSec = parseFloat(ttsIntervalInput.value);
+
+            if (intervalSec > 0) {
+                const cadenceMs = intervalSec * 1000;
+                let chunks = [];
+                const cleanText = text.trim();
+                if (/^[0-9\s.,]+$/.test(cleanText)) {
+                    chunks = cleanText.split('').filter(c => /[0-9]/.test(c));
+                } else {
+                    chunks = cleanText.split(/[\s,.]+/).filter(c => c.trim() !== '');
+                }
+
+                let index = 0;
+                const speakNextChunk = () => {
+                    if (index >= chunks.length || !gameStarted) {
+                        if(onComplete) onComplete();
+                        return;
+                    }
+                    const chunk = chunks[index];
+                    const u = new SpeechSynthesisUtterance(chunk);
+                    u.rate = rate; 
+                    if (ttsEnNumbersCheckbox.checked && /^[0-9]+$/.test(chunk)) u.lang = 'en-US';
+                    const chunkStartTime = Date.now();
+                    u.onend = () => {
+                        const elapsed = Date.now() - chunkStartTime;
+                        const remainingWait = Math.max(0, cadenceMs - elapsed);
+                        index++;
+                        if (index < chunks.length && gameStarted) {
+                            speakTimeoutId = setTimeout(speakNextChunk, remainingWait);
+                        } else {
+                            speakTimeoutId = setTimeout(() => { if(onComplete) onComplete(); }, remainingWait);
+                        }
+                    };
+                    u.onerror = () => { index++; if (index < chunks.length && gameStarted) speakNextChunk(); else if(onComplete) onComplete(); };
+                    synth.speak(u);
+                };
+                speakNextChunk();
+            } else {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = rate;
+                if (ttsEnNumbersCheckbox.checked && /^[0-9\s.,]+$/.test(text.trim())) utterance.lang = 'en-US';
+                utterance.onend = () => { if(onComplete) onComplete(); };
+                utterance.onerror = () => { if(onComplete) onComplete(); };
+                synth.speak(utterance);
+            }
         }
 
+        // --- LAYOUT ---
+        manualLayoutCheckbox.addEventListener('change', () => {
+            const isChecked = manualLayoutCheckbox.checked;
+            configureLayoutBtn.classList.toggle('hidden', !isChecked);
+            if (!isChecked) { layoutStatus.classList.add('hidden'); savedLayout = null; }
+        });
+        configureLayoutBtn.addEventListener('click', () => {
+            const n = parseInt(numSourceWordsSelect.value) || 1;
+            layoutEditorArea.innerHTML = '';
+            for (let i = 0; i < n; i++) {
+                const div = document.createElement('div');
+                div.className = 'draggable-placeholder';
+                div.textContent = `Image ${i + 1}`;
+                div.dataset.index = i;
+                div.style.left = (20 + i * 120) + 'px';
+                div.style.top = '50px';
+                addDragListeners(div, layoutEditorArea);
+                layoutEditorArea.appendChild(div);
+            }
+            layoutEditorModal.classList.remove('hidden');
+        });
+        cancelLayoutBtn.addEventListener('click', () => layoutEditorModal.classList.add('hidden'));
+        saveLayoutBtn.addEventListener('click', () => {
+            const placeholders = layoutEditorArea.querySelectorAll('.draggable-placeholder');
+            const newLayout = {};
+            placeholders.forEach(el => {
+                newLayout[el.dataset.index] = { left: el.style.left, top: el.style.top };
+            });
+            savedLayout = newLayout;
+            layoutStatus.classList.remove('hidden');
+            layoutEditorModal.classList.add('hidden');
+        });
+        let activeDragEl = null; let dragOffsetX = 0, dragOffsetY = 0; let dragContainer = null;
+        function addDragListeners(el, container) {
+            el.addEventListener('mousedown', (e) => startDrag(e, el, container));
+            el.addEventListener('touchstart', (e) => startDrag(e, el, container), {passive: false});
+        }
+        function startDrag(e, el, container) {
+            activeDragEl = el;
+            dragContainer = container;
+            const rect = el.getBoundingClientRect();
+            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            dragOffsetX = clientX - rect.left; dragOffsetY = clientY - rect.top;
+            document.addEventListener('mousemove', onDrag); document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchmove', onDrag, {passive: false}); document.addEventListener('touchend', endDrag);
+        }
+        function onDrag(e) {
+            if (!activeDragEl) return;
+            e.preventDefault();
+            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            const containerRect = dragContainer.getBoundingClientRect();
+            let newX = clientX - containerRect.left - dragOffsetX;
+            let newY = clientY - containerRect.top - dragOffsetY;
+            newX = Math.max(0, Math.min(newX, containerRect.width - activeDragEl.offsetWidth));
+            newY = Math.max(0, Math.min(newY, containerRect.height - activeDragEl.offsetHeight));
+            activeDragEl.style.left = newX + 'px';
+            activeDragEl.style.top = newY + 'px';
+        }
+        function endDrag() {
+            activeDragEl = null;
+            document.removeEventListener('mousemove', onDrag); document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchmove', onDrag); document.removeEventListener('touchend', endDrag);
+        }
+
+        // --- DATA PROCESSING ---
+        function parseTsv(text) {
+             const lines = text.trim().split(/\r\n|\n|\r/);
+             return lines.map(line => line.split('\t'));
+        }
+        async function processFiles(files) {
+            return Promise.all(Array.from(files).map(f => new Promise(resolve => {
+                const r = new FileReader();
+                r.onload = e => resolve({ '1': e.target.result, '2': f.name.replace(/\.[^/.]+$/, "") });
+                r.readAsDataURL(f);
+            })));
+        }
         function shuffle(array) {
             let currentIndex = array.length, randomIndex;
             while (currentIndex !== 0) {
@@ -485,725 +804,616 @@
             return array;
         }
 
-        function processImageFiles(files) {
-            return Promise.all(Array.from(files).map(file => {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-      
-                        const imageName = file.name.split('.').slice(0, -1).join('.');
-                        resolve({ '1': e.target.result, '2': imageName, '3': '', '4': '', '5': '' });
-                    };
-                    reader.onerror = reject;
- 
-                    reader.readAsDataURL(file);
-                });
-            }));
-        }
+        // --- GAME LOGIC ---
+        
+        startButton.addEventListener('click', async () => {
+            // Validation
+            if (manualLayoutCheckbox.checked && !savedLayout) return showCustomAlert("Attention", "Configurez la disposition manuelle ou décochez l'option.");
+            const isImage = !imageTabContent.classList.contains('hidden');
+            if (isImage && imageInput.files.length === 0) return showCustomAlert('Erreur', 'Sélectionnez des images.');
+            if (!isImage && !wordInputAll.value.trim()) return showCustomAlert('Erreur', 'Collez du texte.');
 
-        function getRandomDistractors(correctAnswer, allAnswers) {
-            const uniqueAnswers = [...new Set(allAnswers)];
-            const distractors = new Set();
-            const potentialDistractors = uniqueAnswers.filter(answer => answer !== correctAnswer);
-            const shuffledDistractors = shuffle(potentialDistractors);
-            for (let i = 0; i < Math.min(3, shuffledDistractors.length); i++) {
-                distractors.add(shuffledDistractors[i]);
-            }
-            return Array.from(distractors);
-        }
-
-        function parseTsvWithNewlines(text) {
-            const lines = text.trim().split(/\r\n|\n|\r/);
-            const result = [];
-            let currentLine = '';
-
-            for (const line of lines) {
-                currentLine += line;
-                if ((currentLine.match(/"/g) || []).length % 2 === 0) {
-                    const columns = currentLine.match(/("[\s\S]*?"|[^"\t]+)(?=\t|$)/g) || [];
-                    const cleanedColumns = columns.map(cell => {
-                        let cleaned = cell.trim();
-                        if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
-                            cleaned = cleaned.substring(1, cleaned.length - 1);
-      
-                        }
-                        return cleaned.replace(/""/g, '"');
-                    });
-
-                    result.push(cleanedColumns);
-                
-                    currentLine = '';
-                } else {
-                    currentLine += '\n';
-                }
-            }
-            return result;
-        }
-     
-    
-        // --- GAME LIFECYCLE ---
-        async function startGame(wordsToPlay) {
-            if (timerModeCheckbox.checked && !audioCtx) {
-                try {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                
-                } catch (e) {
-                    console.warn('Web Audio API is not supported in this browser.');
-                }
-            }
-
-            if (!wordsToPlay) {
-                const isImageMode = !imageTabContent.classList.contains('hidden');
-                if (isImageMode) {
-                    const imageFiles = imageInput.files;
-                    if (imageFiles.length === 0) {
-                        showCustomAlert('Erreur', 'Veuillez sélectionner des images.');
-                        return;
-                    }
-                    wordData = await processImageFiles(imageFiles);
-                } else {
-                    const rawInput = wordInputAll.value.trim();
-                    if (rawInput === '') {
-                        showCustomAlert('Erreur', 'Veuillez coller des mots.');
-                        return;
-                    }
-                    const parsedRows = parseTsvWithNewlines(rawInput);
-                    wordData = parsedRows.map(cols => {
-                        return { '1': cols[0] || '', '2': cols[1] || '', '3': cols[2] || '', '4': cols[3] || '', '5': cols[4] || '' };
-                    }).filter(item => Object.values(item).some(val => val.trim() !== ''));
-                }
-
-                const limit = parseInt(wordLimitInput.value);
-                if (!isNaN(limit) && limit > 0 && limit < wordData.length) {
-                    wordData = shuffle(wordData).slice(0, limit);
-                }
-                if (wordData.length === 0) {
-                    showCustomAlert('Erreur', 'Aucun mot valide trouvé.');
-                    return;
-                }
+            // Init Data
+            if (isImage) {
+                wordData = await processFiles(imageInput.files);
+                // Augment with SRS props
+                wordData.forEach(w => { w.srsLevel = 0; w.nextReview = 0; w['3']=''; w['4']=''; });
             } else {
-                wordData = wordsToPlay;
+                const raw = parseTsv(wordInputAll.value);
+                wordData = raw.map((c, i) => ({ 
+                    '1': c[0]||'', '2': c[1]||'', '3': c[2]||'', '4': c[3]||'', '5': c[4]||'',
+                    id: i, srsLevel: 0, nextReview: 0 
+                })).filter(o => Object.values(o).some(v => v && v.toString().trim()));
             }
-
+            if (wordData.length === 0) return showCustomAlert('Erreur', 'Données vides.');
+            // Settings
             sourceColumn = sourceColumnSelect.value;
             targetColumn = targetColumnSelect.value;
-            if (sourceColumn === targetColumn) {
-                 showCustomAlert('Erreur', 'Les colonnes source et cible doivent être différentes.');
-                 return;
-            }
-            
+            if (sourceColumn === targetColumn) return showCustomAlert('Erreur', 'Colonnes identiques.');
+
             activeGameMode = gameModeSelect.value;
             isReviewAllMode = reviewAllCheckbox.checked;
             isTimerMode = timerModeCheckbox.checked;
+            isSrsMode = srsModeCheckbox.checked;
+            if (activeGameMode === 'default') isSrsMode = false; // Safety check
+
             numSourceWords = parseInt(numSourceWordsSelect.value) || 1;
 
-            if (activeGameMode === 'mixed') {
-                const indices = Array.from({ length: wordData.length }, (_, i) => i);
-                const shuffledAllIndices = shuffle(indices);
-                
-                const mcCount = Math.floor(wordData.length * 0.4);
-                const flashcardCount = Math.floor(wordData.length * 0.3);
-                const typingCount = wordData.length - mcCount - flashcardCount;
-
-                const mcIndices = shuffledAllIndices.slice(0, mcCount).map(index => ({ index, mode: 'mc' }));
-                const flashcardIndices = shuffledAllIndices.slice(mcCount, mcCount + flashcardCount).map(index => ({ index, mode: 'flashcard' }));
-                const typingIndices = shuffledAllIndices.slice(mcCount + flashcardCount).map(index => ({ index, mode: 'typing' }));
-                
-                shuffledIndices = shuffle([...mcIndices, ...flashcardIndices, ...typingIndices]);
-            } else {
-                const indices = Array.from({ length: wordData.length }, (_, i) => i);
-                // CORRECTION : Le Timer ne force plus le mélange, seul "Tout revoir en aléatoire" le fait.
-                // Si "Tout revoir" est coché, l'utilisateur s'attend à de l'aléatoire (d'après le libellé).
-                shuffledIndices = (inOrderCheckbox.checked && !isReviewAllMode) ? indices : shuffle(indices);
-            }
+            // Mode Logic
+            playQueue = [];
+            const indices = wordData.map((_, i) => i);
             
+            if (activeGameMode === 'mixed') {
+                const shuf = shuffle([...indices]);
+                const mcN = Math.floor(wordData.length * 0.4);
+                const flN = Math.floor(wordData.length * 0.3);
+                const p1 = shuf.slice(0, mcN).map(i => ({index: i, mode: 'mc'}));
+                const p2 = shuf.slice(mcN, mcN+flN).map(i => ({index: i, mode: 'flashcard'}));
+                const p3 = shuf.slice(mcN+flN).map(i => ({index: i, mode: 'typing'}));
+                playQueue = shuffle([...p1, ...p2, ...p3]);
+            } else {
+                if (isSrsMode) {
+                    playQueue = indices;
+                } else {
+                    playQueue = (inOrderCheckbox.checked && !isReviewAllMode) ? indices : shuffle(indices);
+                }
+            }
+
+            // --- COUNTDOWN LOGIC ---
+            const countdownSeconds = parseInt(startCountdownSelect.value);
+            if (countdownSeconds > 0) {
+                setupScreen.classList.add('hidden');
+                countdownOverlay.classList.remove('hidden');
+                let count = countdownSeconds;
+                countdownNumber.textContent = count;
+                
+                const interval = setInterval(() => {
+                    count--;
+                    if (count > 0) {
+                        countdownNumber.textContent = count;
+                    } else {
+                        clearInterval(interval);
+                        countdownOverlay.classList.add('hidden');
+                        launchGameActual();
+                    }
+                }, 1000);
+            } else {
+                launchGameActual();
+            }
+        });
+
+        function launchGameActual() {
+            // UI Init
             setupScreen.classList.add('hidden');
             gameScreen.classList.remove('hidden');
             endScreen.classList.add('hidden');
-            chronometerLabel.classList.add('hidden');
             
-            typingInput.classList.add('hidden');
-            multipleChoiceContainer.classList.add('hidden');
-            flashcardReveal.classList.add('invisible');
-            showWordButton.classList.add('hidden');
-            nextWordButton.classList.remove('hidden');
-            gameInstruction.classList.toggle('hidden', activeGameMode === 'mc' || activeGameMode === 'mixed' || isTimerMode);
-            
+            if (manualLayoutCheckbox.checked) {
+                wordDisplayContainer.classList.remove('flex', 'flex-wrap', 'justify-center', 'items-center');
+                wordDisplayContainer.classList.add('game-display-manual');
+            } else {
+                wordDisplayContainer.classList.add('flex', 'flex-wrap', 'justify-center', 'items-center');
+                wordDisplayContainer.classList.remove('game-display-manual');
+            }
+
+            // Counters
+            currentQueueIndex = 0;
             currentWordIndex = 0;
             wordTimings = [];
             gameStarted = true;
             startTime = performance.now();
-            timerInterval = setInterval(updateTimer, 10);
+            currentCombo = 0; maxCombo = 0;
+            updateComboDisplay();
+            
+            if(timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => { timerDisplay.textContent = ((performance.now() - startTime)/1000).toFixed(3) + 's'; }, 50);
+            
             if (isReviewAllMode) {
-                const duration = parseInt(reviewAllSecondsInput.value);
-                if (isNaN(duration) || duration <= 0) {
-                    showCustomAlert('Erreur', 'Veuillez entrer une durée valide.');
-                    returnToSetup();
-                    return;
+                const sec = parseInt(reviewAllSecondsInput.value) || 60;
+                masterTimer = setTimeout(endGame, sec * 1000);
+            }
+
+            nextWord(true);
+        }
+
+        function getNextSRSWord() {
+            const now = wordTimings.length;
+            const due = wordData.filter(w => w.nextReview <= now);
+            if (due.length > 0) {
+                return due[Math.floor(Math.random() * due.length)].id;
+            }
+            const sorted = [...wordData].sort((a,b) => a.srsLevel - b.srsLevel);
+            const candidates = sorted.slice(0, Math.min(3, sorted.length));
+            return candidates[Math.floor(Math.random() * candidates.length)].id;
+        }
+
+        function displayWord() {
+            if (synth.speaking) synth.cancel();
+            if (speakTimeoutId) clearTimeout(speakTimeoutId);
+            if (autoAdvanceTimeout) clearTimeout(autoAdvanceTimeout);
+
+            isWordRevealed = false;
+            isError = false;
+            // UI Clean
+            wordDisplayContainer.innerHTML = '';
+            clozeDisplay.classList.add('hidden');
+            clozeDisplay.innerHTML = '';
+            targetWordDisplay.textContent = '';
+            mnemonicDisplay.classList.add('hidden');
+            typingInput.classList.add('hidden');
+            multipleChoiceContainer.classList.add('hidden');
+            showWordButton.classList.add('hidden');
+            showHintButton.classList.add('hidden');
+            nextWordButton.classList.remove('hidden');
+            flashcardReveal.classList.add('invisible');
+            typingInput.value = '';
+            typingInput.classList.remove('border-green-500', 'bg-green-50', 'border-red-500', 'bg-red-50');
+            // --- BUILD CONTENT ---
+            let textToRead = "";
+            let wordObj = wordData[currentWordIndex];
+
+            const cardsToShow = [];
+            if (!isSrsMode && numSourceWords > 1) {
+                for (let i = 0; i < numSourceWords; i++) {
+                    let idxInQueue = currentQueueIndex + i;
+                    if (idxInQueue < playQueue.length) {
+                         let realIdx = activeGameMode === 'mixed' ? playQueue[idxInQueue].index : playQueue[idxInQueue];
+                         cardsToShow.push(wordData[realIdx]);
+                    }
                 }
-                masterTimer = setTimeout(endGame, duration * 1000);
+            } else {
+                cardsToShow.push(wordObj);
+            }
+
+            cardsToShow.forEach((obj, i) => {
+                const content = obj[sourceColumn];
+                if (!content.startsWith('data:image')) textToRead += content + ". ";
+
+                if (content.startsWith('data:image')) {
+                     const img = document.createElement('img');
+                    img.src = content;
+                    
+                    if (manualLayoutCheckbox.checked && savedLayout && savedLayout[i]) {
+                        img.className = 'game-image-manual max-h-60 w-auto object-contain rounded-xl shadow-md border border-white/50';
+                        img.style.left = savedLayout[i].left; img.style.top = savedLayout[i].top;
+                        wordDisplayContainer.appendChild(img);
+                    } else {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'p-3 bg-white dark:bg-zinc-800 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 dark:border-zinc-700 transition-transform hover:scale-105 duration-500';
+                        img.className = 'max-h-64 object-contain rounded-2xl';
+                        wrapper.appendChild(img);
+                        wordDisplayContainer.appendChild(wrapper);
+                    }
+                    
+                } else {
+                    const p = document.createElement('p');
+                    p.className = 'text-6xl font-semibold text-gray-700 dark:text-gray-100 break-words preserve-lines mx-4 tracking-tight leading-tight floating-element';
+                    p.textContent = content;
+                    if (manualLayoutCheckbox.checked && savedLayout && savedLayout[i]) {
+                         p.style.position = 'absolute';
+                         p.style.left = savedLayout[i].left; p.style.top = savedLayout[i].top;
+                         p.classList.remove('floating-element'); 
+                    }
+                    wordDisplayContainer.appendChild(p);
+                }
+            });
+            // Progress Update
+            let pct = 0;
+            if(isSrsMode) {
+                 const learned = wordData.filter(w => w.srsLevel >= 3).length;
+                 pct = (learned / wordData.length) * 100;
+                 progressDisplay.textContent = `SRS: ${learned}/${wordData.length} appris`;
+            } else {
+                 pct = (currentQueueIndex / playQueue.length) * 100;
+                 progressDisplay.textContent = `${currentQueueIndex+1} / ${playQueue.length}`;
+            }
+            progressBarFill.style.width = pct + "%";
+            // Determine Interaction Mode
+            let mode = activeGameMode;
+            if (activeGameMode === 'mixed') {
+                mode = playQueue[currentQueueIndex].mode;
+            }
+
+            // CLOZE MODE SPECIFIC
+            if (mode === 'cloze') {
+                const sentence = wordObj['3'];
+                const target = wordObj[targetColumn];
+                if (sentence && sentence.trim().length > 0) {
+                    clozeDisplay.classList.remove('hidden');
+                    const regex = new RegExp(target, "gi");
+                    clozeDisplay.innerHTML = sentence.replace(regex, "<span class='text-indigo-600 border-b-2 border-indigo-400 font-bold'>[...]</span>");
+                    textToRead = sentence.replace(regex, "blank");
+                } else {
+                    clozeDisplay.classList.remove('hidden');
+                    clozeDisplay.innerHTML = "<em class='text-gray-400'>Pas de phrase en colonne 3 pour le mode Trou.</em>";
+                }
+                typingInput.classList.remove('hidden');
+                nextWordButton.innerHTML = 'Valider';
+                setTimeout(() => typingInput.focus(), 100);
+            }
+            else if (mode === 'typing') {
+                typingInput.classList.remove('hidden');
+                nextWordButton.innerHTML = 'Valider';
+                setTimeout(() => typingInput.focus(), 100);
+            } 
+            else if (mode === 'mc') {
+                multipleChoiceContainer.classList.remove('hidden');
+                nextWordButton.classList.add('hidden');
+                displayMC(wordObj);
+            } 
+            else { // Flashcard / Default
+                showWordButton.classList.remove('hidden');
+                nextWordButton.innerHTML = 'Suivant';
             }
 
             if (isTimerMode) {
-                const duration = parseFloat(timerSecondsInput.value);
-                if (isNaN(duration) || duration <= 0) {
-                    showCustomAlert('Erreur', 'Veuillez entrer une durée valide pour le timer.');
-                    returnToSetup();
-                    return;
+                showWordButton.classList.add('hidden');
+                nextWordButton.classList.add('hidden');
+                typingInput.classList.add('hidden');
+            }
+            
+            if (wordObj['3'] || wordObj['4']) {
+                showHintButton.classList.remove('hidden');
+            }
+
+            wordStartTime = performance.now();
+            currentCardStartTime = Date.now();
+            // --- SMART SYNC LOGIC ---
+            let minTimeMs = 0;
+            if (isTimerMode) {
+                const sec = parseFloat(timerSecondsInput.value) || 3;
+                minTimeMs = sec * 1000;
+            }
+
+            const onAudioFinished = () => {
+                if (!gameStarted || !isTimerMode) return;
+                const elapsed = Date.now() - currentCardStartTime;
+                const remaining = Math.max(0, minTimeMs - elapsed);
+                autoAdvanceTimeout = setTimeout(() => {
+                    nextWord(); 
+                }, remaining);
+            };
+
+            if (textToRead && ttsCheckbox.checked) {
+                speakText(textToRead, onAudioFinished);
+            } else {
+                if (isTimerMode) {
+                    autoAdvanceTimeout = setTimeout(() => nextWord(), minTimeMs);
                 }
-                wordTimerInterval = setInterval(() => {
-                    playBeep();
-                    nextWord();
-                }, duration * 1000);
+            }
+        }
+
+        function nextWord(isStart = false) {
+            // 1. Save Result of previous
+            if (!isStart) {
+                const timeSpent = performance.now() - wordStartTime;
+                const wordObj = wordData[currentWordIndex];
+                
+                // SRS LOGIC UPDATE
+                if (activeGameMode === 'default') isSrsMode = false; // Forced disable
+
+                if (isSrsMode) {
+                    // Pour Flashcard : si révélé, c'est considéré comme une erreur SRS
+                    if (activeGameMode === 'flashcard' && isWordRevealed) {
+                        isError = true;
+                    }
+
+                    if (isError) {
+                        wordObj.srsLevel = 0;
+                        wordObj.nextReview = wordTimings.length + 1;
+                        updateCombo(false);
+                    } else {
+                        wordObj.srsLevel++;
+                        const jump = Math.pow(2, wordObj.srsLevel) + 1;
+                        wordObj.nextReview = wordTimings.length + jump;
+                        updateCombo(true);
+                    }
+                }
+                
+                wordTimings.push({ 
+                    ...wordObj, 
+                    time: timeSpent, 
+                    isError: isError,
+                    targetLabel: wordObj[targetColumn] 
+                });
+                // Advance Queue
+                if (!isSrsMode) {
+                    currentQueueIndex += numSourceWords;
+                }
+            }
+
+            // 2. Check End
+            if (!isSrsMode && currentQueueIndex >= playQueue.length) {
+                if (isReviewAllMode) {
+                    playQueue = shuffle(playQueue);
+                    currentQueueIndex = 0;
+                } else {
+                    return endGame();
+                }
+            }
+            
+            // 3. Pick Next
+            if (isSrsMode) {
+                currentWordIndex = getNextSRSWord();
+                const unlearned = wordData.filter(w => w.srsLevel < 3);
+                if (unlearned.length === 0 && !isReviewAllMode) return endGame(); 
+            } else {
+                let item = activeGameMode === 'mixed' ? playQueue[currentQueueIndex] : playQueue[currentQueueIndex];
+                currentWordIndex = activeGameMode === 'mixed' ? item.index : item;
             }
 
             displayWord();
         }
 
-        function updateTimer() {
-            const elapsedTime = (performance.now() - startTime) / 1000;
-            timerDisplay.textContent = elapsedTime.toFixed(3) + 's';
+        // --- INTERACTION LOGIC ---
+        
+        function updateCombo(success) {
+            if (activeGameMode === 'default') return; // Pas de combo en lecture simple
+
+            if (success) {
+                currentCombo++;
+                if(currentCombo > maxCombo) maxCombo = currentCombo;
+                comboContainer.classList.add('combo-pop');
+                setTimeout(() => comboContainer.classList.remove('combo-pop'), 200);
+            } else {
+                currentCombo = 0;
+            }
+            updateComboDisplay();
         }
 
-        function displayWord() {
-            if (gameStarted && (isReviewAllMode || isTimerMode) && currentWordIndex >= shuffledIndices.length) {
-                shuffledIndices = shuffle(shuffledIndices);
-                currentWordIndex = 0;
-            }
-            if (!gameStarted || currentWordIndex >= shuffledIndices.length) {
-                if(gameStarted && (isReviewAllMode || isTimerMode)) { /* loop */ } else { return; }
+        function updateComboDisplay() {
+            comboValueDisplay.textContent = currentCombo;
+            comboContainer.classList.remove('opacity-0');
+            if (currentCombo < 5) comboContainer.classList.add('text-emerald-500');
+            else if (currentCombo < 10) comboContainer.classList.add('text-amber-500');
+            else comboContainer.classList.add('combo-fire');
+        }
+
+        function revealAnswer(isFailure) {
+            isWordRevealed = true;
+            flashcardReveal.classList.remove('invisible');
+            targetWordDisplay.textContent = wordData[currentWordIndex][targetColumn];
+            
+            const mnemonic = wordData[currentWordIndex]['4'];
+            if (mnemonic && mnemonic.trim()) {
+                mnemonicText.textContent = mnemonic;
+                mnemonicDisplay.classList.remove('hidden');
             }
             
-            isWordRevealed = false;
-            isError = false;
-            typingInput.classList.remove('border-red-500', 'bg-red-100', 'border-green-500', 'bg-green-100');
-            typingInput.value = '';
-            
-            wordDisplayContainer.innerHTML = '';
+            const context = wordData[currentWordIndex]['3'];
+            if (context && context.trim() && activeGameMode !== 'cloze') {
+                // optional context display logic
+            }
 
-            for (let i = 0; i < numSourceWords; i++) {
-                const itemIndex = currentWordIndex + i;
-                if (itemIndex >= shuffledIndices.length) break;
-
-                const dataIndex = activeGameMode === 'mixed' ?
-                    (shuffledIndices[itemIndex] ? shuffledIndices[itemIndex].index : undefined) : shuffledIndices[itemIndex];
-                
-                if (dataIndex === undefined || !wordData[dataIndex]) break; 
-
-                const sourceContent = wordData[dataIndex][sourceColumn];
-                if (sourceContent.startsWith('data:image')) {
-                    const img = document.createElement('img');
-                    img.src = sourceContent;
-                    img.className = numSourceWords > 1 ?
-                        'max-h-48 object-contain rounded-lg shadow-md' : 'max-h-60 object-contain rounded-lg shadow-md';
-                    wordDisplayContainer.appendChild(img);
-                } else {
-                    const p = document.createElement('p');
-                    let textSize = 'text-5xl md:text-6xl lg:text-7xl';
-                    if (numSourceWords === 2) textSize = 'text-4xl md:text-5xl';
-                    else if (numSourceWords === 3) textSize = 'text-3xl md:text-4xl';
-                    else if (numSourceWords >= 4) textSize = 'text-2xl md:text-3xl';
-                    p.className = `${textSize} font-bold text-slate-800 break-words max-w-full leading-tight preserve-lines`;
-                    p.textContent = sourceContent;
-                    wordDisplayContainer.appendChild(p);
+            if (isFailure) {
+                isError = true;
+                if(!isSrsMode) updateCombo(false);
+            } else {
+                // Cas flashcard : si on révèle, on brise le combo "je savais sans regarder"
+                if (activeGameMode === 'flashcard') {
+                     updateCombo(false);
                 }
-            }
-
-            wordStartTime = performance.now();
-            progressDisplay.textContent = `(${Math.min(currentWordIndex + 1, wordData.length)} - ${Math.min(currentWordIndex + numSourceWords, wordData.length)} / ${wordData.length})`;
-            
-            flashcardReveal.classList.add('invisible');
-            targetWordDisplay.innerHTML = '';
-            otherColsDisplay.innerHTML = '';
-            otherColsDisplay.classList.add('hidden');
-            multipleChoiceContainer.innerHTML = '';
-            
-            typingInput.classList.add('hidden');
-            multipleChoiceContainer.classList.add('hidden');
-            showWordButton.classList.add('hidden');
-            nextWordButton.classList.remove('hidden');
-
-            document.removeEventListener('keydown', handleKeydown);
-            document.removeEventListener('keydown', handleTyping);
-            
-            const currentData = shuffledIndices[currentWordIndex];
-            const itemMode = (activeGameMode === 'mixed') ? (currentData ? currentData.mode : 'default') : activeGameMode;
-
-            switch (itemMode) {
-                case 'typing':
-                    typingInput.classList.remove('hidden');
-                    nextWordButton.innerHTML = 'Valider';
-                    typingInput.focus();
-                    document.addEventListener('keydown', handleTyping);
-                    break;
-                case 'mc':
-                    nextWordButton.classList.add('hidden');
-                    multipleChoiceContainer.classList.remove('hidden');
-                    displayMultipleChoice();
-                    document.addEventListener('keydown', handleKeydown);
-                    break;
-                case 'flashcard':
-                case 'default':
-                    showWordButton.classList.remove('hidden');
-                    nextWordButton.innerHTML = 'Mot suivant →';
-                    document.addEventListener('keydown', handleKeydown);
-                    break;
-                default:
-                    nextWordButton.innerHTML = 'Mot suivant →';
-                    document.addEventListener('keydown', handleKeydown);
-                    break;
-            }
-             if (isTimerMode) {
-                showWordButton.classList.add('hidden');
-                nextWordButton.classList.add('hidden');
             }
         }
 
-        function displayMultipleChoice() {
-            const currentIndex = activeGameMode === 'mixed' ?
-                shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
-            const correctWord = wordData[currentIndex][targetColumn];
-            const allPossibleAnswers = wordData.map(item => item[targetColumn]).filter(Boolean);
-            const distractors = getRandomDistractors(correctWord, allPossibleAnswers);
-            let answers = shuffle([correctWord, ...distractors]);
-            multipleChoiceContainer.innerHTML = '';
-            answers.forEach(answer => {
-                const button = document.createElement('button');
-                if (answer.startsWith('data:image')) {
-                    button.innerHTML = `<img src="${answer}" class="h-24 w-full object-contain">`;
-                    button.className = 'bg-gray-100 p-2 rounded-lg shadow-md hover:bg-gray-200 transition duration-150 flex items-center justify-center';
+        showWordButton.addEventListener('click', () => {
+            revealAnswer(false);
+        });
+        showHintButton.addEventListener('click', () => {
+             const w = wordData[currentWordIndex];
+             if (w['4']) {
+                 mnemonicText.textContent = w['4'];
+                 mnemonicDisplay.classList.remove('hidden');
+             } else if (w['3']) {
+                 alert("Contexte: " + w['3']);
+             }
+        });
+        nextWordButton.addEventListener('click', () => {
+            const mode = activeGameMode === 'mixed' ? playQueue[currentQueueIndex].mode : activeGameMode;
+            
+            if ((mode === 'typing' || mode === 'cloze') && nextWordButton.innerHTML === 'Valider') {
+                const correct = wordData[currentWordIndex][targetColumn].trim().toLowerCase();
+                const typed = typingInput.value.trim().toLowerCase();
+               
+                if (typed === correct) {
+                    typingInput.classList.add('border-green-500', 'bg-green-50');
+                    if(!isSrsMode) updateCombo(true); 
+                    setTimeout(() => nextWord(), 500);
                 } else {
-                    button.textContent = answer;
-                    button.className = 'bg-white text-slate-700 p-3 rounded-full font-semibold shadow-md border border-slate-300 hover:bg-slate-50 transition';
+                    typingInput.classList.add('border-red-500', 'bg-red-50');
+                    revealAnswer(true);
+                    nextWordButton.innerHTML = 'Continuer';
                 }
-           
-                button.dataset.answer = answer;
-                button.addEventListener('click', (e) => handleMultipleChoiceClick(e.currentTarget, answer === correctWord, correctWord));
-                multipleChoiceContainer.appendChild(button);
+            } else if (mode === 'flashcard') {
+                // En mode Flashcard, si on clique sur Suivant :
+                // Si pas révélé = Succès (Combo+)
+                // Si révélé = Neutre/Echec (Combo reset géré dans revealAnswer)
+                if (!isWordRevealed) {
+                    if(!isSrsMode) updateCombo(true);
+                    // Pour SRS, nextWord() utilisera le fait que isWordRevealed est false = succès
+                }
+                nextWord();
+            } else {
+                // Default mode etc
+                nextWord();
+            }
+        });
+        function displayMC(wordObj) {
+            const correct = wordObj[targetColumn];
+            const distractors = shuffle(wordData.filter(w => w[targetColumn] !== correct).map(w => w[targetColumn])).slice(0, 3);
+            const options = shuffle([correct, ...distractors]);
+            multipleChoiceContainer.innerHTML = '';
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200 p-4 rounded-xl shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-700 border border-gray-100 dark:border-zinc-700 transition-all';
+                btn.textContent = opt.startsWith('data:image') ? 'Image' : opt;
+                if(opt.startsWith('data:image')) btn.innerHTML = `<img src="${opt}" class="h-16 mx-auto rounded-lg">`;
+                btn.onclick = () => {
+                    const btns = multipleChoiceContainer.querySelectorAll('button');
+                    btns.forEach(b => b.disabled = true);
+                    if (opt === correct) {
+                        btn.classList.add('bg-green-500', 'text-white', 'border-green-600');
+                        btn.classList.remove('bg-white', 'text-gray-700');
+                        if(!isSrsMode) updateCombo(true);
+                        setTimeout(() => nextWord(), 600);
+                    } else {
+                        btn.classList.add('bg-red-500', 'text-white', 'border-red-600');
+                        btn.classList.remove('bg-white', 'text-gray-700');
+                        btns.forEach(b => { if(b.textContent === correct || b.innerHTML.includes(correct)) b.classList.add('bg-green-500', 'text-white'); });
+                        revealAnswer(true);
+                        nextWordButton.classList.remove('hidden');
+                    }
+                };
+                multipleChoiceContainer.appendChild(btn);
             });
         }
-        
-        function handleMultipleChoiceClick(clickedButton, isCorrect, correctAnswer) {
-            const timeForWord = performance.now() - wordStartTime;
-            const currentIndex = activeGameMode === 'mixed' ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
-            
-            const allButtons = multipleChoiceContainer.querySelectorAll('button');
-            allButtons.forEach(btn => btn.disabled = true);
 
-            if (isCorrect) {
-                clickedButton.classList.remove('bg-white', 'border-slate-300', 'hover:bg-slate-50');
-                clickedButton.classList.add('bg-green-500', 'text-white', 'border-green-500', 'correct-answer');
-                wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: false });
-                setTimeout(nextWord, 800);
-            } else {
-                isError = true;
-                clickedButton.classList.remove('bg-white', 'border-slate-300', 'hover:bg-slate-50');
-                clickedButton.classList.add('bg-red-500', 'text-white', 'border-red-500', 'incorrect-answer');
-                
-                const correctButton = Array.from(allButtons).find(btn => btn.dataset.answer === correctAnswer);
-                if(correctButton) {
-                    correctButton.classList.remove('bg-white', 'border-slate-300', 'hover:bg-slate-50');
-                    correctButton.classList.add('bg-green-500', 'text-white', 'border-green-500');
-                } else {
-                    revealWord();
-                }
-
-                wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: true });
-                nextWordButton.innerHTML = 'Mot suivant →';
-                nextWordButton.classList.remove('hidden');
-                document.addEventListener('keydown', handleKeydown);
-            }
-        }
-
-        function checkTypedAnswer() {
-            const currentData = shuffledIndices[currentWordIndex];
-            const itemMode = (activeGameMode === 'mixed') ? (currentData ? currentData.mode : 'default') : activeGameMode;
-
-            if (itemMode !== 'typing') return;
-            if (isError) {
-                nextWord();
-                return;
-            }
-
-            const typedWordRaw = typingInput.value.trim();
-            if (typedWordRaw === '') {
-                showCustomAlert('Attention', 'Veuillez entrer une réponse avant de continuer.');
-                return;
-            }
-            const typedWord = typedWordRaw.toLowerCase();
-            const currentIndex = activeGameMode === 'mixed' ? shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
-            const correctWord = wordData[currentIndex][targetColumn].trim().toLowerCase();
-            
-            if (typedWord === correctWord) {
-                isError = false;
-                typingInput.classList.add('border-green-500', 'bg-green-100', 'correct-answer');
-                setTimeout(() => {
-                     typingInput.classList.remove('border-green-500', 'bg-green-100');
-                     nextWord();
-                }, 800);
-            } else {
-                typingInput.classList.add('border-red-500', 'bg-red-100', 'incorrect-answer');
-                revealWord();
-                nextWordButton.innerHTML = 'Mot suivant →';
-                isError = true;
-                const timeForWord = performance.now() - wordStartTime;
-                wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: true });
-            }
-        }
-
-        function revealWord() {
-            targetWordDisplay.innerHTML = '';
-            targetWordDisplay.className = 'flex flex-wrap justify-center items-start gap-4';
-            otherColsDisplay.innerHTML = '';
-            
-            for (let i = 0; i < numSourceWords; i++) {
-                const itemIndex = currentWordIndex + i;
-                if (itemIndex >= shuffledIndices.length) break;
-                
-                const currentIndex = activeGameMode === 'mixed' ? (shuffledIndices[itemIndex] ? shuffledIndices[itemIndex].index : undefined) : shuffledIndices[itemIndex];
-                if (currentIndex === undefined || !wordData[currentIndex]) break;
-
-                const currentWord = wordData[currentIndex];
-                const targetContent = currentWord[targetColumn];
-
-                const targetEl = document.createElement('span');
-                targetEl.className = 'font-bold preserve-lines p-2 bg-slate-100 rounded shadow-sm';
-                if (targetContent.startsWith('data:image')) {
-                    targetEl.innerHTML = `<img src="${targetContent}" class="max-h-24 object-contain mx-auto rounded-lg">`;
-                } else {
-                    targetEl.textContent = targetContent;
-                }
-                targetWordDisplay.appendChild(targetEl);
-
-                if (showOtherColsCheckbox.checked) {
-                    const otherColumns = Object.keys(currentWord).filter(key => key !== sourceColumn && key !== targetColumn && ['1', '2', '3', '4', '5'].includes(key) && currentWord[key]).map(key => currentWord[key]);
-                    if (otherColumns.length > 0) {
-                        const otherEl = document.createElement('div');
-                        const prefix = numSourceWords > 1 ? `[${i+1}] ` : '';
-                        otherEl.innerHTML = `${prefix}${otherColumns.join(' / ')}`;
-                        otherEl.className = 'text-sm text-gray-500';
-                        otherColsDisplay.appendChild(otherEl);
-                    }
-                }
-            }
-            
-            if (otherColsDisplay.hasChildNodes()) {
-                otherColsDisplay.classList.remove('hidden');
-            }
-
-            flashcardReveal.classList.remove('invisible');
-            isWordRevealed = true;
-        }
-
-        function nextWord() {
-            const currentData = shuffledIndices[currentWordIndex];
-            const itemMode = (activeGameMode === 'mixed') ? (currentData ? currentData.mode : 'default') : activeGameMode;
-            
-            if (itemMode === 'default' || itemMode === 'flashcard') {
-                 const timeForGroup = performance.now() - wordStartTime;
-                 const timePerWord = numSourceWords > 0 ? timeForGroup / numSourceWords : timeForGroup;
-                 for (let i = 0; i < numSourceWords; i++) {
-                    const itemIndex = currentWordIndex + i;
-                    if (itemIndex >= shuffledIndices.length) break;
-                    
-                    const currentIndex = (activeGameMode === 'mixed') ? 
-                        (shuffledIndices[itemIndex] ? shuffledIndices[itemIndex].index : undefined) : 
-                        shuffledIndices[itemIndex];
-                        
-                    if (currentIndex === undefined) break;
-                    wordTimings.push({ ...wordData[currentIndex], time: timePerWord, isError: isError });
-                 }
-            } 
-            else if (itemMode === 'typing' && !isError) {
-                const currentIndex = activeGameMode === 'mixed' ?
-                    shuffledIndices[currentWordIndex].index : shuffledIndices[currentWordIndex];
-                const timeForWord = performance.now() - wordStartTime;
-                wordTimings.push({ ...wordData[currentIndex], time: timeForWord, isError: false });
-            }
-            
-            currentWordIndex += numSourceWords;
-            if ((isReviewAllMode || isTimerMode)) {
-                displayWord();
-            } else if (currentWordIndex < shuffledIndices.length) {
-                displayWord();
-            } else {
-                endGame();
-            }
+        // --- END & CLEANUP ---
+        function stopGameCleanup() {
+            gameStarted = false;
+            clearInterval(timerInterval);
+            if (autoAdvanceTimeout) clearTimeout(autoAdvanceTimeout);
+            clearTimeout(masterTimer);
+            if (speakTimeoutId) clearTimeout(speakTimeoutId);
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
         }
 
         function endGame() {
-            gameStarted = false;
-            clearInterval(timerInterval);
-            clearTimeout(masterTimer);
-            clearInterval(wordTimerInterval);
-            document.removeEventListener('keydown', handleKeydown);
-            document.removeEventListener('keydown', handleTyping);
-
+            stopGameCleanup();
             gameScreen.classList.add('hidden');
             endScreen.classList.remove('hidden');
-            finalTimeDisplay.textContent = ((performance.now() - startTime) / 1000).toFixed(3) + 's';
+            finalTimeDisplay.textContent = timerDisplay.textContent;
+            finalComboDisplay.textContent = maxCombo;
             
-            replayButton.classList.add('hidden');
-            replayOptionsDiv.classList.add('hidden');
-            reviewAllSummary.classList.add('hidden');
-
-            if (activeGameMode === 'mc' || activeGameMode === 'mixed' || activeGameMode === 'typing') {
-                const errorWords = wordTimings.filter(item => item.isError);
-                if (errorWords.length > 0) {
-                    historyTitle.textContent = "Mots avec erreur";
-                    populateHistoryTable(errorWords);
-                    replayButton.textContent = 'Rejouer les mots incorrects';
-                    replayButton.classList.remove('hidden');
-                } else {
-                    wordTimings.sort((a, b) => b.time - a.time);
-                    historyTitle.textContent = "Historique des mots et temps";
-                    populateHistoryTable(wordTimings);
-                    if (wordTimings.length > 0) {
-                        replayButton.textContent = 'Rejouer les mots les plus longs';
-                        replayButton.classList.remove('hidden');
-                        replayOptionsDiv.classList.remove('hidden');
-                    }
-                }
-            } else {
-                 if ((isReviewAllMode || isTimerMode) && wordTimings.length > 0) {
-                    const aggregatedTimes = new Map();
-                    wordTimings.forEach(item => {
-                        // CORRECTION : Clé basée sur Source/Cible sélectionnées et non plus '1' et '2' en dur
-                        const key = item[sourceColumn] + '||' + item[targetColumn];
-                        if (!aggregatedTimes.has(key)) {
-                            aggregatedTimes.set(key, { ...item, time: 0, count: 0 });
-      
-                        }
-                        const entry = aggregatedTimes.get(key);
-                        entry.time += item.time;
-                        entry.count += 1;
-   
-                    });
-                    
-                    aggregatedTimes.forEach(entry => {
-                        entry.time = entry.count > 0 ? entry.time / entry.count : 0;
-                    });
-                    wordTimings = Array.from(aggregatedTimes.values());
-                    reviewAllSummary.textContent = `Nombre de mots vus : ${wordTimings.reduce((acc, item) => acc + item.count, 0)}`;
-                    reviewAllSummary.classList.remove('hidden');
-                }
-
-                wordTimings.sort((a, b) => b.isError - a.isError || b.time - a.time);
-                historyTitle.textContent = (isReviewAllMode || isTimerMode) ? "Mots affichés (temps moyen)" : "Historique des mots et temps";
-                populateHistoryTable(wordTimings);
-                const hasErrors = wordTimings.some(item => item.isError);
-                const hasWords = wordTimings.length > 0;
-                if (hasErrors) {
-                    replayButton.textContent = 'Rejouer les mots incorrects';
-                    replayButton.classList.remove('hidden');
-                } else if (hasWords) {
-                    replayButton.textContent = 'Rejouer les mots les plus longs';
-                    replayButton.classList.remove('hidden');
-                    replayOptionsDiv.classList.remove('hidden');
-                }
-            }
-        }
-        
-        function populateHistoryTable(data) {
+            // History Table
             historyTableBody.innerHTML = '';
-            historyColSource.textContent = columnMap[sourceColumn];
-            historyColTarget.textContent = columnMap[targetColumn];
-
-            data.forEach(item => {
-                const sourceContent = item[sourceColumn];
-                const targetContent = item[targetColumn];
-                const sourceCell = sourceContent.startsWith('data:image') ? `<td class="py-2 px-4 flex justify-center"><img src="${sourceContent}" class="h-12 w-12 object-cover rounded-md"></td>` : `<td class="py-2 px-4 whitespace-nowrap">${sourceContent}</td>`;
-                const targetCell = 
-                    targetContent.startsWith('data:image') ? `<td class="py-2 px-4 flex justify-center"><img src="${targetContent}" class="h-12 w-12 object-cover rounded-md"></td>` : `<td class="py-2 px-4 whitespace-nowrap">${targetContent}</td>`;
-                
-                const otherColumns = Object.keys(item).filter(key => key !== sourceColumn && key !== targetColumn && ['1', '2', '3', '4', '5'].includes(key) && item[key]).map(key => item[key]);
-           
-                const row = document.createElement('tr');
-                if (item.isError) row.classList.add('error-row');
-                row.className += ' hover:bg-slate-50 transition duration-150 text-center';
-                row.innerHTML = `${sourceCell}${targetCell}<td class="py-2 px-4 whitespace-nowrap">${otherColumns.join(', ') || '-'}</td><td class="py-2 px-4 whitespace-nowrap">${(item.time / 1000).toFixed(3)}s</td>`;
-                historyTableBody.appendChild(row);
+            wordTimings.forEach(item => {
+                const tr = document.createElement('tr');
+                if (item.isError) tr.classList.add('error-row');
+                const src = item[sourceColumn].startsWith('data:image') ? `<img src="${item[sourceColumn]}" class="h-10 mx-auto rounded-lg">` : item[sourceColumn];
+                const tgt = item.targetLabel.startsWith('data:image') ? `<img src="${item.targetLabel}" class="h-10 mx-auto rounded-lg">` : item.targetLabel;
+                const timeSec = (item.time / 1000).toFixed(2) + 's';
+                tr.innerHTML = `<td class="p-3 border-b dark:border-zinc-700 text-center text-gray-700 dark:text-gray-200">${src}</td><td class="p-3 border-b dark:border-zinc-700 text-center text-gray-700 dark:text-gray-200">${tgt}</td><td class="p-3 border-b dark:border-zinc-700 text-center font-mono text-xs text-gray-400">${timeSec}</td><td class="p-3 border-b dark:border-zinc-700 text-center">${item.isError ? '❌' : '✅'}</td>`;
+                historyTableBody.appendChild(tr);
             });
-        }
-        
-        function returnToSetup() {
-            if (gameStarted) {
-                gameStarted = false;
-                clearInterval(timerInterval);
-                clearTimeout(masterTimer);
-                clearInterval(wordTimerInterval);
-                document.removeEventListener('keydown', handleKeydown);
-                document.removeEventListener('keydown', handleTyping);
-            }
-            setupScreen.classList.remove('hidden');
-            gameScreen.classList.add('hidden');
-            endScreen.classList.add('hidden');
-            chronometerLabel.classList.remove('hidden');
-            timerDisplay.textContent = '0.000s';
-            
-            reviewAllCheckbox.checked = false;
-            timerModeCheckbox.checked = false;
-            inOrderCheckbox.checked = false;
-            showOtherColsCheckbox.checked = false;
-            
-            gameModeSelect.value = 'default';
-            numSourceWordsSelect.value = '1';
-            wordLimitInput.value = '';
-            reviewAllSecondsInput.value = '';
-            timerSecondsInput.value = '';
-            
-            // CORRECTION : Suppression de la réinitialisation des colonnes Source/Cible
-            // sourceColumnSelect.value = '1'; 
-            // targetColumnSelect.value = '2'; 
-            
-            checkMultipleChoiceAvailability();
-        }
-
-        function triggerNextAction() {
-            if (!gameStarted || isTimerMode) return;
-            
-            const currentData = shuffledIndices[currentWordIndex];
-            const itemMode = (activeGameMode === 'mixed') ? (currentData ? currentData.mode : 'default') : activeGameMode;
-            
-            const isEffectiveMC = (itemMode === 'mc');
-            const isEffectiveTyping = (itemMode === 'typing');
-            const isEffectiveFlashcard = (itemMode === 'flashcard');
-
-            if (isEffectiveMC) {
-                if (isError) {
-                    nextWord();
-                }
-                return;
-            }
-
-            if (isEffectiveTyping) {
-                checkTypedAnswer();
-                return;
-            }
-            
-            if (isEffectiveFlashcard) {
-                if (isWordRevealed) {
-                    nextWord();
-                } else {
-                    revealWord();
-                }
-                return;
-            }
-
-            nextWord();
-        }
-
-        function handleKeydown(event) {
-            if (event.key === 'ArrowRight') triggerNextAction();
-        }
-        function handleTyping(event) {
-            if (event.key === 'Enter') {
-                checkTypedAnswer();
-            }
-        }
-        
-        function handleReplay() {
-            let wordsToReplay = [];
-            const hasErrors = wordTimings.some(word => word.isError);
-            if (hasErrors) {
-                wordsToReplay = wordTimings.filter(word => word.isError);
+            // Analytics
+            analyticsTableBody.innerHTML = '';
+            const agg = {};
+            wordTimings.forEach(t => {
+                const key = t.targetLabel;
+                if (!agg[key]) agg[key] = { errors: 0, time: 0, count: 0 };
+                if (t.isError) agg[key].errors++;
+                agg[key].time += t.time;
+                agg[key].count++;
+            });
+            const badWords = Object.entries(agg).filter(([k, v]) => v.errors > 0 || (v.time/v.count > 5000))
+                                  .sort((a,b) => b[1].errors - a[1].errors || b[1].time - a[1].time);
+            if (badWords.length === 0) {
+                analyticsTableBody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-emerald-600 font-bold">Bravo ! Aucune erreur majeure détectée.</td></tr>';
             } else {
-                const count = parseInt(replayLongestCountInput.value) || 10;
-                wordTimings.sort((a, b) => b.time - a.time);
-                wordsToReplay = wordTimings.slice(0, count);
+                badWords.forEach(([word, stats]) => {
+                    const avgTime = (stats.time / stats.count / 1000).toFixed(1);
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td class="p-3 border-b dark:border-zinc-700 font-bold text-gray-700 dark:text-gray-300">${word}</td><td class="p-3 border-b dark:border-zinc-700 text-center text-red-500 font-bold">${stats.errors}</td><td class="p-3 border-b dark:border-zinc-700 text-center text-gray-500">${avgTime}s</td>`;
+                    if (stats.errors > 0) tr.classList.add('error-row');
+                    else tr.classList.add('slow-row');
+                    analyticsTableBody.appendChild(tr);
+                });
+                replayButton.classList.remove('hidden');
             }
-
-            if (wordsToReplay.length === 0) {
-                showCustomAlert('Information', 'Aucun mot à rejouer.');
-                return;
-            }
-            const cleanWords = wordsToReplay.map(item => { const { time, isError, count, ...word } = item; return word; });
-            startGame(cleanWords);
         }
 
-        startButton.addEventListener('click', () => startGame());
-        replayButton.addEventListener('click', handleReplay);
-        resetButton.addEventListener('click', returnToSetup);
-        returnButton.addEventListener('click', returnToSetup);
-        nextWordButton.addEventListener('click', triggerNextAction);
-        showWordButton.addEventListener('click', revealWord);
-        
-        gameModeSelect.addEventListener('change', handleModeChange);
-        reviewAllCheckbox.addEventListener('change', handleModeChange);
-        timerModeCheckbox.addEventListener('change', handleModeChange);
-        numSourceWordsSelect.addEventListener('change', handleModeChange);
+        // --- REPLAY SLOWEST LOGIC ---
+        replaySlowBtn.addEventListener('click', () => {
+            const count = parseInt(slowReplayCount.value) || 5;
+            const sortedByTime = [...wordTimings].sort((a, b) => b.time - a.time);
+            const toReplay = sortedByTime.slice(0, count).map(w => w.id);
+            
+            if (toReplay.length === 0) return showCustomAlert("Info", "Pas assez de données pour rejouer.");
 
-        // --- LOGIQUE CORRIGÉE POUR GÉRER LES CONFLITS D'OPTIONS ---
+            playQueue = toReplay;
+            
+            endScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            currentQueueIndex = 0;
+            currentCombo = 0;
+            maxCombo = 0;
+            wordTimings = [];
+            
+            updateComboDisplay();
+            gameStarted = true;
+            startTime = performance.now();
+            
+            // RELANCE CHRONO
+            timerDisplay.textContent = "0.000s";
+            if(timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => { timerDisplay.textContent = ((performance.now() - startTime)/1000).toFixed(3) + 's'; }, 50);
+
+            nextWord(true);
+        });
+
+        resetButton.addEventListener('click', () => {
+            stopGameCleanup();
+            endScreen.classList.add('hidden');
+            setupScreen.classList.remove('hidden');
+        });
+        returnButton.addEventListener('click', () => {
+             stopGameCleanup();
+             gameScreen.classList.add('hidden');
+             setupScreen.classList.remove('hidden');
+        });
         function handleModeChange() {
-            const selectedMode = gameModeSelect.value;
-            const isReview = reviewAllCheckbox.checked;
-            const isTimer = timerModeCheckbox.checked;
-            const numWords = parseInt(numSourceWordsSelect.value) || 1;
-            const isInteractiveMode = ['typing', 'mc', 'mixed'].includes(selectedMode);
+             const mode = gameModeSelect.value;
+             const isInteractive = ['typing','mc','mixed','cloze','flashcard'].includes(mode);
+             
+             // SRS Rules
+             if (mode === 'default') {
+                 srsModeCheckbox.checked = false;
+                 srsModeCheckbox.disabled = true;
+             } else {
+                 srsModeCheckbox.disabled = false;
+             }
 
-            // 1. État de base : tout activer sauf si contrainte d'availability (géré par checkMultipleChoice)
-            const isBaseMCAvailable = !mcOption.disabled;
-            const isBaseMixedAvailable = !mixedOption.disabled;
-            
-            // On réactive tout temporairement pour appliquer la logique
-            gameModeSelect.disabled = false;
-            reviewAllCheckbox.disabled = false;
-            timerModeCheckbox.disabled = false;
-            numSourceWordsSelect.disabled = false;
-            
-            Array.from(gameModeSelect.options).forEach(opt => opt.disabled = false);
-            mcOption.disabled = !isBaseMCAvailable;
-            mixedOption.disabled = !isBaseMixedAvailable;
+             if(srsModeCheckbox.checked) {
+                 inOrderCheckbox.disabled = true;
+                 inOrderCheckbox.checked = false;
+             } else {
+                 inOrderCheckbox.disabled = false;
+             }
 
-            // 2. Logique d'exclusion
-            
-            // Si le nombre de mots > 1 : Modes interactifs impossibles
-            if (numWords > 1) {
-                Array.from(gameModeSelect.options).forEach(opt => {
-                    if (['typing', 'mc', 'mixed'].includes(opt.value)) {
-                        opt.disabled = true;
-                    }
-                });
-                if (isInteractiveMode) {
-                    gameModeSelect.value = 'default';
-                }
-            }
-            
-            // Si Timer ou Tout Revoir actif : Modes interactifs impossibles
-            if (isTimer || isReview) {
-                Array.from(gameModeSelect.options).forEach(opt => {
-                    if (['typing', 'mc', 'mixed'].includes(opt.value)) {
-                        opt.disabled = true;
-                    }
-                });
-                if (isInteractiveMode) {
-                    gameModeSelect.value = 'default';
-                }
-                
-                // Si Timer actif, il bloque le mode de jeu complet (seul défaut est possible)
-                if (isTimer) {
-                    gameModeSelect.disabled = true; 
-                    // Note: Timer n'empêche plus numSourceWords > 1
-                }
-            } 
-            // Sinon, si un mode interactif est sélectionné (Saisie, MC, Mixte)
-            else if (isInteractiveMode) {
-                // Bloquer les options temporelles et mots multiples
-                reviewAllCheckbox.disabled = true;
-                timerModeCheckbox.disabled = true;
-                numSourceWordsSelect.disabled = true; // Forcer à 1
-                if (numSourceWordsSelect.value !== '1') {
-                    numSourceWordsSelect.value = '1';
-                }
-            }
-
-            // Gestion des champs input associés
-            timerSecondsInput.disabled = !isTimer;
-            reviewAllSecondsInput.disabled = !isReview;
+             if (['typing','mc','mixed','cloze'].includes(mode)) {
+                 numSourceWordsSelect.value = '1';
+                 numSourceWordsSelect.disabled = true;
+                 timerModeCheckbox.disabled = true; 
+                 reviewAllCheckbox.disabled = true;
+                 if(mode === 'cloze') {
+                      showCustomAlert("Mode Trou", "Assurez-vous d'avoir rempli la Colonne 3 avec des phrases !");
+                 }
+             } else {
+                 numSourceWordsSelect.disabled = false;
+                 timerModeCheckbox.disabled = false; 
+                 reviewAllCheckbox.disabled = false;
+             }
         }
-        
-        window.addEventListener('load', () => {
-            checkMultipleChoiceAvailability();
+        gameModeSelect.addEventListener('change', handleModeChange);
+        numSourceWordsSelect.addEventListener('change', handleModeChange);
+        srsModeCheckbox.addEventListener('change', handleModeChange);
+
+        // --- KEYBOARD SHORTCUTS ---
+        document.addEventListener('keydown', (e) => {
+            if (!gameStarted) return;
+            if (e.key === 'ArrowRight' && !nextWordButton.classList.contains('hidden')) {
+                 if ((activeGameMode === 'typing' || activeGameMode === 'cloze') && nextWordButton.innerHTML === 'Valider') nextWordButton.click(); 
+                 else nextWordButton.click();
+            }
+            if (e.key === 'Enter') {
+                if ((activeGameMode === 'typing' || activeGameMode === 'cloze')) nextWordButton.click();
+                else if (activeGameMode === 'default' || activeGameMode === 'flashcard') revealAnswer(false);
+            }
+            if (e.key === ' ' && (activeGameMode === 'default' || activeGameMode === 'flashcard')) {
+                if (showWordButton.classList.contains('hidden')) nextWordButton.click();
+                else showWordButton.click();
+            }
         });
     </script>
 </body>
